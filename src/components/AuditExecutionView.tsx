@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TRANSLATIONS } from "../utils/translations";
 import {
   AuditRecord,
   PPEAudit,
@@ -72,6 +73,8 @@ const STOCK_IMPROVEMENTS = [
 ];
 
 export default function AuditExecutionView({ onSave, onCancel, existingAudit, lang }: AuditExecutionViewProps) {
+  const t = (key: string) => TRANSLATIONS[lang as any]?.[key] || TRANSLATIONS["en"][key] || key;
+
   // Generate Audit ID
   const generateAuditId = () => {
     const today = new Date();
@@ -786,7 +789,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
       {/* 2. Basic Metadata Input Form */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-xs font-bold text-[#005EB8] uppercase tracking-wider mb-2">
+        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
           1. Audit Basic Information (기본 정보 입력)
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1009,7 +1012,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
       {/* 3. Detailed Checklist Audit Areas */}
       <div className="space-y-6">
-        <h2 className="text-xs font-bold text-[#005EB8] uppercase tracking-wider mb-2">
+        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
           2. Standard Compliance Audit (영역별 규격 평가)
         </h2>
 
@@ -1434,13 +1437,14 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             />
           </div>
         </div>
+      </div>
 
-        {/* 2.5 Improvement Opportunities */}
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-gray-800 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-            2.5 Improvement Opportunities (현장 제안 및 지속적 개선 기회)
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* 3. Improvement Opportunities */}
+      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
+        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
+          3. Improvement Opportunities (현장 제안 및 지속적 개선 기회)
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-[10px] font-bold text-gray-600 mb-1">현장 관찰 상황 (Observation)</label>
               <textarea
@@ -1560,17 +1564,16 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             )}
           </div>
         </div>
-      </div>
 
       {/* 4. Gap Management with Intelligent Gemini Analysis */}
       {gaps.length > 0 && (
-        <div className="bg-white p-6 rounded-xl border border-[#005EB8]/20 shadow-sm space-y-6">
+        <div className="bg-white p-6 rounded-xl border border-amber-200/60 shadow-sm space-y-6">
           <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-            <h2 className="text-sm font-bold text-[#005EB8] flex items-center gap-1.5">
-              <AlertTriangle className="h-5 w-5" />
-              3. Gap & Action Management (NOK 평가에 따른 관리 항목 자동 생성)
+            <h2 className="text-sm font-bold text-amber-800 flex items-center gap-1.5">
+              <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />
+              Gap & Action Tracking (NOK 평가에 따른 시정 조치 수립)
             </h2>
-            <span className="text-[10px] bg-amber-50 text-amber-800 font-semibold px-2.5 py-1 rounded-full">
+            <span className="text-[10px] bg-amber-50 text-amber-800 font-semibold px-2.5 py-1 rounded-full border border-amber-100">
               총 {gaps.length}개 분야 결함 개선 추적 대상
             </span>
           </div>
@@ -1776,9 +1779,9 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
         </div>
       )}
 
-      {/* 5. Evidence & Photo Registration Section */}
+      {/* 4. Evidence & Photo Registration Section */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-xs font-bold text-[#005EB8] uppercase tracking-wider mb-2">
+        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
           4. Evidence & Photos Management (현장 증빙 및 사진 관리)
         </h2>
 
