@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { AuditRecord, ActionStatusType } from "../types";
+import { useMemo, useState } from "react";
+import { AuditRecord } from "../types";
+import { TRANSLATIONS } from "../utils/translations";
 import {
   BarChart,
   Bar,
@@ -23,17 +24,43 @@ import {
   Award,
   AlertOctagon,
   Activity,
-  FileSpreadsheet,
+  Sliders,
 } from "lucide-react";
 
 interface DashboardViewProps {
   audits: AuditRecord[];
+  lang: string;
 }
 
-export default function DashboardView({ audits }: DashboardViewProps) {
-  const submittedAudits = useMemo(() => {
-    return audits.filter((a) => a.status === "Submitted");
+export default function DashboardView({ audits, lang }: DashboardViewProps) {
+  const [selectedSite, setSelectedSite] = useState<string>("All");
+  const [selectedArea, setSelectedArea] = useState<string>("All");
+
+  const t = (key: string) => TRANSLATIONS[lang as any]?.[key] || TRANSLATIONS["en"][key] || key;
+
+  // Extract unique Sites and Areas dynamically from the dataset
+  const uniqueSites = useMemo(() => {
+    const sites = new Set(audits.map((a) => a.site));
+    return ["All", ...Array.from(sites)];
   }, [audits]);
+
+  const uniqueAreas = useMemo(() => {
+    const areas = new Set(audits.map((a) => a.area));
+    return ["All", ...Array.from(areas)];
+  }, [audits]);
+
+  // Filter audits for the dashboard calculations
+  const filteredAllAudits = useMemo(() => {
+    return audits.filter((a) => {
+      if (selectedSite !== "All" && a.site !== selectedSite) return false;
+      if (selectedArea !== "All" && a.area !== selectedArea) return false;
+      return true;
+    });
+  }, [audits, selectedSite, selectedArea]);
+
+  const submittedAudits = useMemo(() => {
+    return filteredAllAudits.filter((a) => a.status === "Submitted");
+  }, [filteredAllAudits]);
 
   // Current System Date
   const currentDate = new Date("2026-07-02");
@@ -67,7 +94,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
     const passedAudits = submittedAudits.filter((a) => a.score >= 80).length;
     const passRate = Math.round((passedAudits / total) * 100);
 
-    // Collect all actions from submitted audits
+    // Collect all actions from filtered submitted audits
     const allActions = submittedAudits.flatMap((a) => a.actions);
     const totalActions = allActions.length;
     const completedActions = allActions.filter((act) => act.status === "Completed").length;
@@ -105,7 +132,9 @@ export default function DashboardView({ audits }: DashboardViewProps) {
   // Chart 1: Site-specific Average Compliance Score
   const siteChartData = useMemo(() => {
     const sites = ["Incheon", "Bismarck", "Dobris", "Chennai"] as const;
-    return sites.map((site) => {
+    const filteredSites = selectedSite === "All" ? sites : [selectedSite as typeof sites[number]];
+    return filteredSites.map((site) => {
+      // Find audits belonging to the specific site from full audits that pass current filters
       const siteAudits = submittedAudits.filter((a) => a.site === site);
       const avg =
         siteAudits.length > 0
@@ -113,21 +142,24 @@ export default function DashboardView({ audits }: DashboardViewProps) {
           : 0;
       return { name: site, Score: avg, Count: siteAudits.length };
     });
-  }, [submittedAudits]);
+  }, [submittedAudits, selectedSite]);
 
   // Chart 2: Area-specific Findings
   const areaChartData = useMemo(() => {
     const areas = ["Assembly", "Welding", "Machining", "Paint", "Logistics"] as const;
     const colors = ["#005EB8", "#00A5D7", "#00AD83", "#F26B43", "#C00000"];
-    return areas.map((area, index) => {
-      const count = submittedAudits.filter((a) => a.area === area).length;
-      return { name: area, value: count, color: colors[index] };
-    }).filter((item) => item.value > 0);
-  }, [submittedAudits]);
+    const filteredAreas = selectedArea === "All" ? areas : [selectedArea as typeof areas[number]];
+    return filteredAreas
+      .map((area) => {
+        const idx = areas.indexOf(area as any);
+        const count = submittedAudits.filter((a) => a.area === area).length;
+        return { name: area, value: count, color: colors[idx !== -1 ? idx : 0] };
+      })
+      .filter((item) => item.value > 0);
+  }, [submittedAudits, selectedArea]);
 
   // Chart 3: Monthly Trend
   const trendChartData = useMemo(() => {
-    // Group by month of auditDate
     const monthlyData: { [key: string]: { totalScore: number; count: number } } = {};
     submittedAudits.forEach((audit) => {
       const date = new Date(audit.auditDate);
@@ -198,24 +230,69 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
             <Activity className="h-6 w-6 text-[#005EB8]" />
-            SW Compliance Audit Dashboard
+            {t("db_title")}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            두산밥캣 글로벌 공장 표준 작업 준수 모니터링 및 실시간 KPI 분석 플랫폼
+            {t("db_subtitle")}
           </p>
         </div>
         <div className="text-xs text-gray-400 mt-2 md:mt-0 bg-gray-50 px-3 py-1.5 rounded-md border border-gray-100 font-mono">
-          기준일자: 2026-07-02
+          {lang === "ko" ? "기준일자: 2026-07-02" : "Reference Date: 2026-07-02"}
         </div>
       </div>
 
-      {/* 2. Key KPI Scoreboard */}
+      {/* 2. Interactive Filter Bar */}
+      <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs flex flex-wrap gap-4 items-center print:hidden">
+        <div className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+          <Sliders className="h-4 w-4 text-[#005EB8]" />
+          {t("db_filter_site")} / {t("db_filter_area")}
+        </div>
+        
+        {/* Site Dropdown */}
+        <div className="w-[160px]">
+          <select
+            value={selectedSite}
+            onChange={(e) => setSelectedSite(e.target.value)}
+            className="w-full text-xs border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8] font-bold text-gray-700 bg-gray-50 cursor-pointer"
+          >
+            {uniqueSites.map((s) => (
+              <option key={s} value={s}>
+                {s === "All" ? t("db_all_sites") : s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Area Dropdown */}
+        <div className="w-[160px]">
+          <select
+            value={selectedArea}
+            onChange={(e) => setSelectedArea(e.target.value)}
+            className="w-full text-xs border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8] font-bold text-gray-700 bg-gray-50 cursor-pointer"
+          >
+            {uniqueAreas.map((a) => (
+              <option key={a} value={a}>
+                {a === "All" ? t("db_all_areas") : a}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Selected Summary Info */}
+        <div className="text-[11px] text-gray-500 font-medium ml-auto">
+          {lang === "ko"
+            ? `선택된 조건에 해당하는 Audit 기록 총 ${submittedAudits.length}건 집계 완료`
+            : `Total ${submittedAudits.length} matching submitted audits compiled`}
+        </div>
+      </div>
+
+      {/* 3. Key KPI Scoreboard */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Compliance Rate */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm transition hover:shadow-md">
           <div className="flex justify-between items-start">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Compliance Rate
+              {t("db_compliance_rate")}
             </span>
             <span className="bg-[#BFD5EA]/30 text-[#005EB8] p-1.5 rounded-lg">
               <TrendingUp className="h-5 w-5" />
@@ -224,7 +301,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900">{kpis.complianceRate}%</span>
             <span
-              className={`text-xs font-bold px-1.5 py-0.5 rounded ${
+              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                 kpis.complianceRate >= 80
                   ? "bg-[#B2E6DA]/40 text-[#00AD83]"
                   : kpis.complianceRate >= 60
@@ -232,17 +309,19 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                   : "bg-red-50 text-[#C00000]"
               }`}
             >
-              {kpis.complianceRate >= 80 ? "Pass Target" : "Under Target"}
+              {kpis.complianceRate >= 80 ? t("db_pass_target") : t("db_under_target")}
             </span>
           </div>
-          <p className="text-xs text-gray-400 mt-2">전체 평가 항목 합계 점수 평균</p>
+          <p className="text-xs text-gray-400 mt-2">
+            {lang === "ko" ? "전체 평가 항목 합계 점수 평균" : "Overall Average Compliance Score"}
+          </p>
         </div>
 
         {/* KPI 2: Audit Pass Rate */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm transition hover:shadow-md">
           <div className="flex justify-between items-start">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Audit Pass Rate
+              {t("db_audit_pass_rate")}
             </span>
             <span className="bg-[#B2E6DA]/40 text-[#00AD83] p-1.5 rounded-lg">
               <Award className="h-5 w-5" />
@@ -250,16 +329,18 @@ export default function DashboardView({ audits }: DashboardViewProps) {
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900">{kpis.passRate}%</span>
-            <span className="text-xs text-[#00AD83] font-semibold">(80점 이상)</span>
+            <span className="text-[10px] text-[#00AD83] font-bold bg-[#B2E6DA]/20 px-1.5 py-0.5 rounded">(≥ 80)</span>
           </div>
-          <p className="text-xs text-gray-400 mt-2">전체 Audit 중 합격점 획득 비율</p>
+          <p className="text-xs text-gray-400 mt-2">
+            {lang === "ko" ? "전체 Audit 중 합격점 획득 비율" : "Rate of Audits Scoring ≥ 80%"}
+          </p>
         </div>
 
         {/* KPI 3: Action Closure Rate */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm transition hover:shadow-md">
           <div className="flex justify-between items-start">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Action Closure Rate
+              {t("db_action_closure_rate")}
             </span>
             <span className="bg-orange-50 text-[#F26B43] p-1.5 rounded-lg">
               <CheckCircle2 className="h-5 w-5" />
@@ -267,18 +348,20 @@ export default function DashboardView({ audits }: DashboardViewProps) {
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900">{kpis.actionClosureRate}%</span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-400 font-mono">
               ({kpis.completedActions}/{kpis.totalActions})
             </span>
           </div>
-          <p className="text-xs text-gray-400 mt-2">갭 개선 조치사항(Corrective Action) 완료율</p>
+          <p className="text-xs text-gray-400 mt-2">
+            {lang === "ko" ? "갭 개선 조치사항 완료율" : "Corrective Action Closure Progress"}
+          </p>
         </div>
 
         {/* KPI 4: Overdue Action Rate */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm transition hover:shadow-md">
           <div className="flex justify-between items-start">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Overdue Action Rate
+              {t("db_overdue_action_rate")}
             </span>
             <span className="bg-red-50 text-[#C00000] p-1.5 rounded-lg">
               <AlertTriangle className="h-5 w-5" />
@@ -287,12 +370,14 @@ export default function DashboardView({ audits }: DashboardViewProps) {
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900">{kpis.overdueActionRate}%</span>
             {kpis.overdueActions > 0 && (
-              <span className="text-xs font-bold text-[#C00000] bg-red-50 px-1.5 py-0.5 rounded">
-                {kpis.overdueActions}건 지연
+              <span className="text-xs font-bold text-[#C00000] bg-red-50 px-1.5 py-0.5 rounded animate-pulse">
+                {kpis.overdueActions} {t("db_actions_overdue")}
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-400 mt-2">목표일 도과 미조치 개선 조치 비율</p>
+          <p className="text-xs text-gray-400 mt-2">
+            {lang === "ko" ? "목표일 도과 미조치 개선 비율" : "Rate of Open Actions Overdue"}
+          </p>
         </div>
       </div>
 
@@ -303,8 +388,12 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             {kpis.gapRate}%
           </div>
           <div>
-            <div className="text-xs font-semibold text-gray-700">Gap Occurrence Rate (갭 발견율)</div>
-            <div className="text-[11px] text-gray-400">Audit 당 최소 1개 이상 갭 발견된 비율</div>
+            <div className="text-xs font-semibold text-gray-700">
+              {lang === "ko" ? "Gap 발생률" : "Gap Discovery Rate"}
+            </div>
+            <div className="text-[11px] text-gray-400">
+              {lang === "ko" ? "Audit 당 1개 이상 Gap 발견된 비율" : "% of Audits with ≥ 1 Gap"}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -312,17 +401,25 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             {kpis.repeatGapRate}%
           </div>
           <div>
-            <div className="text-xs font-semibold text-gray-700">Repeat Gap Rate (동일 갭 재발률)</div>
-            <div className="text-[11px] text-gray-400">동일 라인/공정에서 반복 지적된 갭 비율</div>
+            <div className="text-xs font-semibold text-gray-700">
+              {lang === "ko" ? "동일 Gap 재발률" : "Repeat Gap Rate"}
+            </div>
+            <div className="text-[11px] text-gray-400">
+              {lang === "ko" ? "동일 라인/공정 반복 지적 갭 비율" : "% of Recurring Failures"}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-sky-100 text-sky-800 p-2 rounded-lg font-bold text-sm">
-            {submittedAudits.length}건
+          <div className="bg-sky-100 text-sky-800 p-2 rounded-lg font-bold text-sm font-mono">
+            {submittedAudits.length}
           </div>
           <div>
-            <div className="text-xs font-semibold text-gray-700">Total Audits Performed</div>
-            <div className="text-[11px] text-gray-400">제출 및 KPI 산출에 반영된 총 누적 횟수</div>
+            <div className="text-xs font-semibold text-gray-700">
+              {lang === "ko" ? "총 진단 완료 횟수" : "Total Audits Performed"}
+            </div>
+            <div className="text-[11px] text-gray-400">
+              {lang === "ko" ? "제출 및 KPI에 산입된 누적 횟수" : "Total Submitted Audits Composed"}
+            </div>
           </div>
         </div>
       </div>
@@ -333,7 +430,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm lg:col-span-2">
           <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#005EB8]"></span>
-            Site별 평균 Compliance Rate 현황 (%)
+            {t("db_site_average")}
           </h3>
           <div className="h-64">
             {siteChartData.some((d) => d.Count > 0) ? (
@@ -344,7 +441,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                   <YAxis domain={[0, 100]} fontSize={11} stroke="#6B7280" />
                   <Tooltip
                     contentStyle={{ background: "#222", border: "none", borderRadius: "8px", color: "#fff" }}
-                    formatter={(value) => [`${value}% 평균`, "점수"]}
+                    formatter={(value) => [`${value}%`, lang === "ko" ? "평균 점수" : "Avg Score"]}
                   />
                   <Bar dataKey="Score" radius={[4, 4, 0, 0]}>
                     {siteChartData.map((entry, index) => (
@@ -358,19 +455,19 @@ export default function DashboardView({ audits }: DashboardViewProps) {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-xs text-gray-400">
-                제출 완료된 데이터가 없습니다.
+                {lang === "ko" ? "제출 완료된 데이터가 없습니다." : "No submitted audit data available."}
               </div>
             )}
           </div>
           <div className="flex justify-center gap-4 mt-2 text-[10px] text-gray-500 font-medium">
             <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00AD83]"></span> 우수 (≥80)
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00AD83]"></span> {t("db_excellent")}
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#F26B43]"></span> 주의 (60~79)
+              <span className="w-2.5 h-2.5 rounded-full bg-[#F26B43]"></span> {t("db_warning")}
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C00000]"></span> 미흡 (&lt;60)
+              <span className="w-2.5 h-2.5 rounded-full bg-[#C00000]"></span> {t("db_poor")}
             </span>
           </div>
         </div>
@@ -379,7 +476,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#005EB8]"></span>
-            공정 영역(Area)별 Audit 수행 비중
+            {t("db_area_distribution")}
           </h3>
           <div className="h-64 flex items-center justify-center">
             {areaChartData.length > 0 ? (
@@ -398,23 +495,25 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value}회 수행`, "비중"]} />
+                  <Tooltip formatter={(value) => [`${value}`, lang === "ko" ? "회 수행" : "Audits Done"]} />
                   <Legend verticalAlign="bottom" height={36} iconSize={10} iconType="circle" wrapperStyle={{ fontSize: "10px" }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-xs text-gray-400">데이터가 존재하지 않습니다.</div>
+              <div className="text-xs text-gray-400">
+                {lang === "ko" ? "데이터가 존재하지 않습니다." : "No matching audits."}
+              </div>
             )}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Trend & Category Breakdown */}
+        {/* Trend of Scores */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Clock className="h-4 w-4 text-sky-600" />
-            월별 SW Audit 점수 추세 및 누적 건수
+            {t("db_monthly_trend")}
           </h3>
           <div className="h-60">
             {trendChartData.length > 0 ? (
@@ -436,7 +535,9 @@ export default function DashboardView({ audits }: DashboardViewProps) {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-xs text-gray-400">
-                트렌드 데이터 축적을 위해 Audit 기록을 생성해 주세요.
+                {lang === "ko"
+                  ? "트렌드 데이터 축적을 위해 Audit 기록을 생성해 주세요."
+                  : "Create audit records to accumulate trend line statistics."}
               </div>
             )}
           </div>
@@ -446,7 +547,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <AlertOctagon className="h-4 w-4 text-[#C00000]" />
-            지적된 Gap 원인 분야 TOP 4
+            {t("db_critical_gaps")}
           </h3>
           <div className="h-60">
             {gapBreakdown.some((d) => d.Count > 0) ? (
@@ -465,7 +566,9 @@ export default function DashboardView({ audits }: DashboardViewProps) {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-xs text-gray-400">
-                발견 및 등록된 Gap 지적 사항이 없습니다.
+                {lang === "ko"
+                  ? "발견 및 등록된 Gap 지적 사항이 없습니다."
+                  : "No critical gap occurrences registered yet."}
               </div>
             )}
           </div>
@@ -477,10 +580,10 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
             <AlertTriangle className="h-4.5 w-4.5 text-amber-500" />
-            미결 개선조치 추적 현황 (Follow-up Actions List)
+            {t("db_overdue_actions")}
           </h3>
-          <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full font-medium">
-            미해결 {pendingActions.length}건
+          <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full font-mono font-bold">
+            {pendingActions.length} {lang === "ko" ? "건 미결" : "Open Items"}
           </span>
         </div>
 
@@ -490,18 +593,18 @@ export default function DashboardView({ audits }: DashboardViewProps) {
               <thead className="bg-gray-50 text-gray-700 uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="p-3">Audit ID</th>
-                  <th className="p-3">Line / Station</th>
-                  <th className="p-3">조치사항 (Corrective Action)</th>
-                  <th className="p-3">담당자 (Owner)</th>
-                  <th className="p-3">기한 (Due Date)</th>
-                  <th className="p-3">상태</th>
+                  <th className="p-3">{lang === "ko" ? "라인 / 공정" : "Line / Station"}</th>
+                  <th className="p-3">{lang === "ko" ? "시정대책" : "Corrective Action"}</th>
+                  <th className="p-3">{lang === "ko" ? "담당자" : "Assignee"}</th>
+                  <th className="p-3">{lang === "ko" ? "예정기한" : "Due Date"}</th>
+                  <th className="p-3">{lang === "ko" ? "상태" : "Status"}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {pendingActions.map((action) => {
                   const isOverdue = new Date(action.dueDate) < currentDate;
                   return (
-                    <tr key={action.id} className="hover:bg-gray-50/50 transition">
+                     <tr key={action.id} className="hover:bg-gray-50/50 transition">
                       <td className="p-3 font-semibold text-gray-900 font-mono">{action.auditId}</td>
                       <td className="p-3">
                         <span className="font-medium text-gray-700">{action.line}</span>
@@ -544,7 +647,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         ) : (
           <div className="bg-[#B2E6DA]/20 text-[#00AD83] p-4 rounded-lg flex items-center gap-2 text-xs font-medium border border-[#B2E6DA]/50">
             <CheckCircle2 className="h-4 w-4" />
-            지연 및 미완료된 개선조치가 없습니다. 모든 공정이 원활하게 follow-up되고 있습니다.
+            {t("db_no_overdue")}
           </div>
         )}
       </div>
@@ -553,7 +656,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
       <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
         <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Award className="h-4.5 w-4.5 text-amber-500" />
-          공정 우수 라인 & 작업자 (Top Performers Audit Ranking)
+          {lang === "ko" ? "공정 준수 우수 라인 & 작업자" : "Standard Work Quality Top Performers"}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {topPerformers.map((audit, idx) => (
@@ -567,7 +670,9 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                   {audit.line} - {audit.station}
                 </div>
                 <div className="text-[10px] text-gray-500 mt-0.5">
-                  작업자: {audit.operatorName} | 심사원: {audit.auditor}
+                  {lang === "ko"
+                    ? `작업자: ${audit.operatorName} | 진단자: ${audit.auditor}`
+                    : `Operator: ${audit.operatorName} | Auditor: ${audit.auditor}`}
                 </div>
               </div>
               <div className="text-right">
@@ -578,7 +683,9 @@ export default function DashboardView({ audits }: DashboardViewProps) {
           ))}
           {topPerformers.length === 0 && (
             <div className="text-xs text-gray-400 p-4 lg:col-span-3 text-center">
-              합격 기준(80점) 이상을 충족한 Audit이 아직 없습니다.
+              {lang === "ko"
+                ? "합격 기준(80점) 이상을 충족한 진단 데이터가 아직 없습니다."
+                : "No audits score higher than the 80% passing target."}
             </div>
           )}
         </div>

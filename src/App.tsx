@@ -4,6 +4,7 @@ import { INITIAL_AUDITS } from "./data/mockData";
 import DashboardView from "./components/DashboardView";
 import AuditExecutionView from "./components/AuditExecutionView";
 import AuditHistoryView from "./components/AuditHistoryView";
+import { LanguageType, LANGUAGE_OPTIONS, TRANSLATIONS } from "./utils/translations";
 import {
   ShieldAlert,
   Sliders,
@@ -13,6 +14,7 @@ import {
   CalendarRange,
   ClipboardList,
   Flame,
+  Globe,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -20,6 +22,9 @@ export default function App() {
   const [audits, setAudits] = useState<AuditRecord[]>([]);
   const [activeTab, setActiveTab] = useState<"dashboard" | "new-audit" | "history">("dashboard");
   const [editingAudit, setEditingAudit] = useState<AuditRecord | null>(null);
+  const [lang, setLang] = useState<LanguageType>("en");
+
+  const t = (key: string) => TRANSLATIONS[lang][key] || TRANSLATIONS["en"][key] || key;
 
   // Load from localstorage on mount
   useEffect(() => {
@@ -135,14 +140,37 @@ export default function App() {
       score: 100,
     };
 
+    const msg = lang === "ko" 
+      ? "기존 감사 #" + originalAudit.id + " 연동 정보가 자동 복사되었습니다.\n재평가(Re-audit)를 시작합니다." 
+      : lang === "zh"
+      ? "已自动复制原审核 #" + originalAudit.id + " 的关联信息。\n开始重新评估。"
+      : lang === "fr"
+      ? "Les informations associées de l'audit précédent #" + originalAudit.id + " ont été copiées automatiquement.\nDébut du ré-audit."
+      : lang === "cs"
+      ? "Přidružené informace z předchozího auditu #" + originalAudit.id + " byly automaticky zkopírovány.\nZahájení re-auditu."
+      : lang === "es"
+      ? "La información asociada de la auditoría anterior #" + originalAudit.id + " se copió automáticamente.\nIniciando reauditoría."
+      : "Associated information from original audit #" + originalAudit.id + " has been copied. Starting re-audit.";
+    
     setEditingAudit(preloadedAudit);
     setActiveTab("new-audit");
-    alert(`기존 감사 #${originalAudit.id} 연동 정보가 자동 복사되었습니다.\n재평가(Re-audit)를 시작합니다.`);
+    alert(msg);
   };
 
   // Reset to sample initial state
   const handleResetToSamples = () => {
-    if (window.confirm("현재 저장된 기록을 초기화하고 Bobcat/Doosan 표준 샘플 4건으로 리셋하시겠습니까?")) {
+    const msg = lang === "ko" 
+      ? "현재 저장된 기록을 초기화하고 Bobcat/Doosan 표준 샘플 4건으로 리셋하시겠습니까?" 
+      : lang === "zh"
+      ? "您确定要重置所有记录并恢复 4 个斗山/山猫标准样本吗？"
+      : lang === "fr"
+      ? "Voulez-vous réinitialiser et restaurer les 4 exemples standards Doosan/Bobcat ?"
+      : lang === "cs"
+      ? "Opravdu chcete resetovat všechny záznamy a obnovit 4 standardní vzorky Doosan/Bobcat?"
+      : lang === "es"
+      ? "¿Está seguro de restablecer todos los registros y restaurar las 4 muestras estándar de Doosan/Bobcat?"
+      : "Are you sure you want to reset all records and restore the 4 Doosan/Bobcat standard samples?";
+    if (window.confirm(msg)) {
       setAudits(INITIAL_AUDITS);
       localStorage.setItem("BOBCAT_SW_AUDITS", JSON.stringify(INITIAL_AUDITS));
       setActiveTab("dashboard");
@@ -164,25 +192,41 @@ export default function App() {
             <div className="h-4 w-[1px] bg-gray-200"></div>
             <div className="hidden sm:block">
               <span className="text-xs font-bold text-gray-800 tracking-wider">
-                SW COMPLIANCE AUDIT SYSTEM
+                {t("system_title")}
               </span>
               <span className="text-[9px] bg-blue-100 text-[#005EB8] font-extrabold px-1.5 py-0.5 rounded ml-2 font-mono tracking-wide">
-                GLOBAL SYSTEM
+                {t("global_system")}
               </span>
             </div>
           </div>
 
-          {/* Quick Stats Panel */}
+          {/* Quick Stats & Language Selector Panel */}
           <div className="flex items-center gap-4">
+            {/* Language Selector */}
+            <div className="flex items-center gap-2 border-r border-gray-100 pr-4">
+              <Globe className="h-3.5 w-3.5 text-gray-400" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as LanguageType)}
+                className="text-[11px] font-bold text-gray-700 bg-gray-50 border border-gray-200 rounded-md py-1 px-2 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8] cursor-pointer"
+              >
+                {LANGUAGE_OPTIONS.map((opt) => (
+                  <option key={opt.code} value={opt.code}>
+                    {opt.flag} {opt.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <span className="text-xs text-gray-400 font-mono hidden md:inline-flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Synced: {audits.length} Records
+              {t("live_synced")}: {audits.length} {t("records")}
             </span>
             <button
               onClick={handleResetToSamples}
               className="text-[10px] text-gray-400 hover:text-[#005EB8] border border-gray-100 hover:border-blue-100 px-2.5 py-1.5 rounded-lg font-bold transition"
             >
-              Reset Samples
+              {t("reset_samples")}
             </button>
           </div>
         </div>
@@ -203,7 +247,7 @@ export default function App() {
                 activeTab === "dashboard" ? "text-gray-900" : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              DASHBOARD
+              {t("nav_dashboard")}
               {activeTab === "dashboard" && (
                 <motion.div
                   layoutId="activeTabUnderline"
@@ -221,7 +265,7 @@ export default function App() {
                 activeTab === "new-audit" && !editingAudit ? "text-gray-900" : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              PERFORM SW AUDIT
+              {t("nav_perform_audit")}
               {activeTab === "new-audit" && !editingAudit && (
                 <motion.div
                   layoutId="activeTabUnderline"
@@ -239,7 +283,7 @@ export default function App() {
                 activeTab === "history" ? "text-gray-900" : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              AUDIT HISTORY & ACTIONS
+              {t("nav_history")}
               {activeTab === "history" && (
                 <motion.div
                   layoutId="activeTabUnderline"
@@ -259,13 +303,14 @@ export default function App() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
           >
-            {activeTab === "dashboard" && <DashboardView audits={audits} />}
+            {activeTab === "dashboard" && <DashboardView audits={audits} lang={lang} />}
 
             {activeTab === "new-audit" && (
               <AuditExecutionView
                 onSave={handleSaveAudit}
                 onCancel={() => setActiveTab("history")}
                 existingAudit={editingAudit}
+                lang={lang}
               />
             )}
 
@@ -279,6 +324,7 @@ export default function App() {
                 onDelete={handleDeleteAudit}
                 onUpdateActionStatus={handleUpdateActionStatus}
                 onTriggerReAudit={handleTriggerReAudit}
+                lang={lang}
               />
             )}
           </motion.div>
@@ -287,7 +333,7 @@ export default function App() {
 
       {/* 4. Humble Legal Footer */}
       <footer className="bg-white border-t border-gray-100 py-6 text-center text-[10px] text-gray-400 mt-auto print:hidden">
-        <p>© 2026 Doosan Bobcat Inc. All rights reserved. Standard Work Compliance Audit Framework • DBG-P-OPS-1020</p>
+        <p>{t("footer_text")}</p>
       </footer>
     </div>
   );

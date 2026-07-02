@@ -35,6 +35,7 @@ interface AuditExecutionViewProps {
   onSave: (audit: AuditRecord) => void;
   onCancel: () => void;
   existingAudit?: AuditRecord | null;
+  lang: string;
 }
 
 const STOCK_EVIDENCES = [
@@ -70,7 +71,7 @@ const STOCK_IMPROVEMENTS = [
   }
 ];
 
-export default function AuditExecutionView({ onSave, onCancel, existingAudit }: AuditExecutionViewProps) {
+export default function AuditExecutionView({ onSave, onCancel, existingAudit, lang }: AuditExecutionViewProps) {
   // Generate Audit ID
   const generateAuditId = () => {
     const today = new Date();

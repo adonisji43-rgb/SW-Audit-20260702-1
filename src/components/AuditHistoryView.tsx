@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { AuditRecord, ActionStatusType, CorrectiveAction, GapItem, EvidenceItem } from "../types";
+import { TRANSLATIONS } from "../utils/translations";
 import {
   Search,
   Filter,
@@ -24,6 +25,7 @@ interface AuditHistoryViewProps {
   onDelete: (id: string) => void;
   onUpdateActionStatus: (auditId: string, actionId: string, newStatus: ActionStatusType, evaluation?: string) => void;
   onTriggerReAudit: (audit: AuditRecord) => void;
+  lang: string;
 }
 
 export default function AuditHistoryView({
@@ -32,9 +34,11 @@ export default function AuditHistoryView({
   onDelete,
   onUpdateActionStatus,
   onTriggerReAudit,
+  lang,
 }: AuditHistoryViewProps) {
   // Search and Filter States
   const [searchTerm, setSearchTerm] = useState("");
+  const t = (key: string) => TRANSLATIONS[lang as any]?.[key] || TRANSLATIONS["en"][key] || key;
   const [selectedSite, setSelectedSite] = useState<string>("All");
   const [selectedArea, setSelectedArea] = useState<string>("All");
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
@@ -166,10 +170,10 @@ export default function AuditHistoryView({
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <FileCheck className="h-5.5 w-5.5 text-[#005EB8]" />
-            SW Audit History & Action Center
+            {t("hi_title")}
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            수행된 감사 기록 데이터 조회, Gap 대응 현장 시정 조치 마감 및 결과물 엑셀 출력
+            {t("hi_subtitle")}
           </p>
         </div>
         <div className="flex gap-2">
@@ -191,7 +195,7 @@ export default function AuditHistoryView({
           </span>
           <input
             type="text"
-            placeholder="Search by ID, Line, Operator, Auditor..."
+            placeholder={t("hi_search")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full text-xs pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
@@ -206,7 +210,7 @@ export default function AuditHistoryView({
             className="w-full text-xs border border-gray-200 rounded-lg p-2 focus:outline-none"
           >
             {uniqueSites.map((s) => (
-              <option key={s} value={s}>{s === "All" ? "All Sites" : s}</option>
+              <option key={s} value={s}>{s === "All" ? t("db_all_sites") : s}</option>
             ))}
           </select>
         </div>
@@ -219,7 +223,7 @@ export default function AuditHistoryView({
             className="w-full text-xs border border-gray-200 rounded-lg p-2 focus:outline-none"
           >
             {uniqueAreas.map((a) => (
-              <option key={a} value={a}>{a === "All" ? "All Areas" : a}</option>
+              <option key={a} value={a}>{a === "All" ? t("db_all_areas") : a}</option>
             ))}
           </select>
         </div>
@@ -257,15 +261,15 @@ export default function AuditHistoryView({
           <table className="w-full text-left border-collapse text-xs">
             <thead className="bg-gray-50 text-gray-700 uppercase tracking-wider text-[10px] font-bold border-b border-gray-100">
               <tr>
-                <th className="p-4">Audit ID</th>
-                <th className="p-4">Date</th>
-                <th className="p-4">Site / Area</th>
-                <th className="p-4">Line / Station</th>
-                <th className="p-4">Operator / Auditor</th>
-                <th className="p-4 text-center">Score</th>
+                <th className="p-4">{t("hi_audit_id")}</th>
+                <th className="p-4">{t("ex_date")}</th>
+                <th className="p-4">{lang === "ko" ? "공장 / 공정영역" : "Site / Area"}</th>
+                <th className="p-4">{lang === "ko" ? "라인 / 공정" : "Line / Station"}</th>
+                <th className="p-4">{lang === "ko" ? "작업자 / 진단자" : "Operator / Auditor"}</th>
+                <th className="p-4 text-center">{t("hi_score")}</th>
                 <th className="p-4 text-center">Gaps</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4">{t("hi_status")}</th>
+                <th className="p-4 text-right">{t("hi_actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
