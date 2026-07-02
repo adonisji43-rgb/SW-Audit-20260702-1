@@ -1,0 +1,6 @@
+{
+  "name": "Standard Work Compliance Audit",
+  "description": "현장 모바일/웹 기반 Standard Work Compliance Audit 수행, 결과 기록, 증빙 사진 관리 및 KPI 추적 서비스",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
