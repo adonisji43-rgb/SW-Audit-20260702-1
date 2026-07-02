@@ -1,6 +1,6 @@
-export type SiteType = "Incheon" | "Bismarck" | "Dobris" | "Chennai";
-export type AreaType = "Assembly" | "Welding" | "Machining" | "Paint" | "Logistics";
-export type ShiftType = "Shift A" | "Shift B" | "Shift C";
+export type SiteType = string;
+export type AreaType = string;
+export type ShiftType = string;
 export type TriggerType = "Routine" | "New Product" | "Process Change" | "Issue/Incident" | "Job Rotation";
 export type GapCategoryType = "Safety" | "Quality" | "Standard not followed" | "Improvement Idea";
 export type RiskLevelType = "High" | "Medium" | "Low";

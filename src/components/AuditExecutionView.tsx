@@ -57,15 +57,15 @@ const STOCK_EVIDENCES = [
 
 const STOCK_IMPROVEMENTS = [
   {
-    name: "공구/거치대 정돈 (After)",
+    name: "정돈 불량 공구/거치대",
     url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60",
   },
   {
-    name: "지그 및 부품 위치 가이드 (After)",
+    name: "지그/부품 배치 가이드 누락",
     url: "https://images.unsplash.com/photo-1537462715879-360eeb61a0bc?w=500&auto=format&fit=crop&q=60",
   },
   {
-    name: "개선 전 수작업 조립대 (Before)",
+    name: "수작업 조립대 인체공학적 개선 필요",
     url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&auto=format&fit=crop&q=60",
   }
 ];
@@ -92,6 +92,82 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
   const [trigger, setTrigger] = useState<TriggerType>(existingAudit ? existingAudit.trigger : "Routine");
   const [swiNo, setSwiNo] = useState(existingAudit ? existingAudit.swiNo : "");
   const [swcNo, setSwcNo] = useState(existingAudit ? existingAudit.swcNo : "");
+
+  // Dynamic Options States
+  const [sitesList, setSitesList] = useState<string[]>(() => {
+    const saved = localStorage.getItem("sw_audit_sites");
+    const list = saved ? JSON.parse(saved) : ["Incheon", "Bismarck", "Dobris", "Chennai"];
+    if (existingAudit && existingAudit.site && !list.includes(existingAudit.site)) {
+      list.push(existingAudit.site);
+    }
+    return list;
+  });
+  const [customSite, setCustomSite] = useState("");
+  const [isAddingSite, setIsAddingSite] = useState(false);
+
+  const [areasList, setAreasList] = useState<string[]>(() => {
+    const saved = localStorage.getItem("sw_audit_areas");
+    const list = saved ? JSON.parse(saved) : ["Assembly", "Welding", "Machining", "Paint", "Logistics"];
+    if (existingAudit && existingAudit.area && !list.includes(existingAudit.area)) {
+      list.push(existingAudit.area);
+    }
+    return list;
+  });
+  const [customArea, setCustomArea] = useState("");
+  const [isAddingArea, setIsAddingArea] = useState(false);
+
+  const [shiftsList, setShiftsList] = useState<string[]>(() => {
+    const saved = localStorage.getItem("sw_audit_shifts");
+    const list = saved ? JSON.parse(saved) : ["Shift A", "Shift B", "Shift C"];
+    if (existingAudit && existingAudit.shift && !list.includes(existingAudit.shift)) {
+      list.push(existingAudit.shift);
+    }
+    return list;
+  });
+  const [customShift, setCustomShift] = useState("");
+  const [isAddingShift, setIsAddingShift] = useState(false);
+
+  const handleAddCustomSite = () => {
+    if (customSite.trim()) {
+      const val = customSite.trim();
+      if (!sitesList.includes(val)) {
+        const newList = [...sitesList, val];
+        setSitesList(newList);
+        localStorage.setItem("sw_audit_sites", JSON.stringify(newList));
+      }
+      setSite(val);
+      setCustomSite("");
+      setIsAddingSite(false);
+    }
+  };
+
+  const handleAddCustomArea = () => {
+    if (customArea.trim()) {
+      const val = customArea.trim();
+      if (!areasList.includes(val)) {
+        const newList = [...areasList, val];
+        setAreasList(newList);
+        localStorage.setItem("sw_audit_areas", JSON.stringify(newList));
+      }
+      setArea(val);
+      setCustomArea("");
+      setIsAddingArea(false);
+    }
+  };
+
+  const handleAddCustomShift = () => {
+    if (customShift.trim()) {
+      const val = customShift.trim();
+      if (!shiftsList.includes(val)) {
+        const newList = [...shiftsList, val];
+        setShiftsList(newList);
+        localStorage.setItem("sw_audit_shifts", JSON.stringify(newList));
+      }
+      setShift(val);
+      setCustomShift("");
+      setIsAddingShift(false);
+    }
+  };
 
   // Audit evaluation states
   const [ppe, setPpe] = useState<PPEAudit>(() => {
@@ -283,7 +359,6 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
 
   // Improvement photo states
   const [impEvidenceDesc, setImpEvidenceDesc] = useState("");
-  const [impBeforeAfter, setImpBeforeAfter] = useState<"Before" | "After">("Before");
 
   // Gaps, Actions & Evidences
   const [gaps, setGaps] = useState<GapItem[]>(existingAudit ? existingAudit.gaps : []);
@@ -579,7 +654,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
       id: `EVI-${Date.now()}`,
       imageUrl: url,
       description: impEvidenceDesc || `개선 제안 현장 사진: ${name}`,
-      beforeAfter: impBeforeAfter,
+      beforeAfter: "Before",
       evidenceType: "Improvement",
     };
     setEvidences((prev) => [...prev, newItem]);
@@ -679,7 +754,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-5">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <FileText className="h-5.5 w-5.5 text-[#FF6B00]" />
+            <FileText className="h-5.5 w-5.5 text-[#005EB8]" />
             {existingAudit ? "Edit SW Audit Record" : "New Standard Work Audit"}
           </h1>
           <p className="text-xs text-gray-500 mt-1">
@@ -701,7 +776,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
           </button>
           <button
             onClick={() => handleSaveOrSubmit("Submitted")}
-            className="px-5 py-2 text-xs font-bold text-white bg-[#00539B] hover:bg-[#00427c] rounded-lg flex items-center gap-1.5 shadow-sm transition"
+            className="px-5 py-2 text-xs font-bold text-white bg-[#005EB8] hover:bg-[#004B93] rounded-lg flex items-center gap-1.5 shadow-sm transition"
           >
             <Send className="h-4 w-4" /> Submit Audit
           </button>
@@ -710,7 +785,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
 
       {/* 2. Basic Metadata Input Form */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-xs font-bold text-[#00539B] uppercase tracking-wider mb-2">
+        <h2 className="text-xs font-bold text-[#005EB8] uppercase tracking-wider mb-2">
           1. Audit Basic Information (기본 정보 입력)
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -720,47 +795,137 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               type="date"
               value={auditDate}
               onChange={(e) => setAuditDate(e.target.value)}
-              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#FF6B00] focus:border-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Site (사업장)</label>
-            <select
-              value={site}
-              onChange={(e) => setSite(e.target.value as SiteType)}
-              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#FF6B00] focus:border-[#FF6B00]"
-            >
-              <option value="Incheon">Incheon (인천)</option>
-              <option value="Bismarck">Bismarck (비스마르크)</option>
-              <option value="Dobris">Dobris (도브리스)</option>
-              <option value="Chennai">Chennai (첸나이)</option>
-            </select>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[11px] font-bold text-gray-700">Site (사업장)</label>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAddingSite(!isAddingSite);
+                  setCustomSite("");
+                }}
+                className="text-[9px] text-[#005EB8] hover:underline font-bold"
+              >
+                {isAddingSite ? "Cancel" : "+ Add Site"}
+              </button>
+            </div>
+            {isAddingSite ? (
+              <div className="flex gap-1">
+                <input
+                  type="text"
+                  placeholder="New site name"
+                  value={customSite}
+                  onChange={(e) => setCustomSite(e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomSite}
+                  className="px-2 py-1 bg-[#005EB8] text-white text-[10px] font-bold rounded hover:bg-[#004B93] shrink-0"
+                >
+                  Add
+                </button>
+              </div>
+            ) : (
+              <select
+                value={site}
+                onChange={(e) => setSite(e.target.value)}
+                className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
+              >
+                {sitesList.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            )}
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Area (공정)</label>
-            <select
-              value={area}
-              onChange={(e) => setArea(e.target.value as AreaType)}
-              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#FF6B00] focus:border-[#FF6B00]"
-            >
-              <option value="Assembly">Assembly (조립)</option>
-              <option value="Welding">Welding (용접)</option>
-              <option value="Machining">Machining (가공)</option>
-              <option value="Paint">Paint (도장)</option>
-              <option value="Logistics">Logistics (물류)</option>
-            </select>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[11px] font-bold text-gray-700">Area (공정)</label>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAddingArea(!isAddingArea);
+                  setCustomArea("");
+                }}
+                className="text-[9px] text-[#005EB8] hover:underline font-bold"
+              >
+                {isAddingArea ? "Cancel" : "+ Add Area"}
+              </button>
+            </div>
+            {isAddingArea ? (
+              <div className="flex gap-1">
+                <input
+                  type="text"
+                  placeholder="New area name"
+                  value={customArea}
+                  onChange={(e) => setCustomArea(e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomArea}
+                  className="px-2 py-1 bg-[#005EB8] text-white text-[10px] font-bold rounded hover:bg-[#004B93] shrink-0"
+                >
+                  Add
+                </button>
+              </div>
+            ) : (
+              <select
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
+              >
+                {areasList.map((a) => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            )}
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Shift</label>
-            <select
-              value={shift}
-              onChange={(e) => setShift(e.target.value as ShiftType)}
-              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#FF6B00] focus:border-[#FF6B00]"
-            >
-              <option value="Shift A">Shift A</option>
-              <option value="Shift B">Shift B</option>
-              <option value="Shift C">Shift C</option>
-            </select>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[11px] font-bold text-gray-700">Shift</label>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAddingShift(!isAddingShift);
+                  setCustomShift("");
+                }}
+                className="text-[9px] text-[#005EB8] hover:underline font-bold"
+              >
+                {isAddingShift ? "Cancel" : "+ Add Shift"}
+              </button>
+            </div>
+            {isAddingShift ? (
+              <div className="flex gap-1">
+                <input
+                  type="text"
+                  placeholder="New shift name"
+                  value={customShift}
+                  onChange={(e) => setCustomShift(e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomShift}
+                  className="px-2 py-1 bg-[#005EB8] text-white text-[10px] font-bold rounded hover:bg-[#004B93] shrink-0"
+                >
+                  Add
+                </button>
+              </div>
+            ) : (
+              <select
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
+                className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
+              >
+                {shiftsList.map((sh) => (
+                  <option key={sh} value={sh}>{sh}</option>
+                ))}
+              </select>
+            )}
           </div>
           <div>
             <label className="block text-[11px] font-bold text-gray-700 mb-1">Line Name *</label>
@@ -769,7 +934,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               placeholder="e.g. Line JB 007"
               value={line}
               onChange={(e) => setLine(e.target.value)}
-              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8]"
               required
             />
           </div>
@@ -780,7 +945,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               placeholder="e.g. WC 02 (Clamping)"
               value={station}
               onChange={(e) => setStation(e.target.value)}
-              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8]"
               required
             />
           </div>
@@ -800,7 +965,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               placeholder="작업자 성명 입력"
               value={operatorName}
               onChange={(e) => setOperatorName(e.target.value)}
-              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8]"
               required
             />
           </div>
@@ -843,7 +1008,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
 
       {/* 3. Detailed Checklist Audit Areas */}
       <div className="space-y-6">
-        <h2 className="text-xs font-bold text-[#00539B] uppercase tracking-wider mb-2">
+        <h2 className="text-xs font-bold text-[#005EB8] uppercase tracking-wider mb-2">
           2. Standard Compliance Audit (영역별 규격 평가)
         </h2>
 
@@ -913,7 +1078,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               placeholder="보호구 착용 상태에 대해 관찰 지적 내용 또는 준수 상황을 입력하세요..."
               value={ppe.observation}
               onChange={(e) => setPpe((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
@@ -1102,7 +1267,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               placeholder="작업 순서 및 재공 수량 관찰 상세 내용을 기재해 주세요..."
               value={sequence.observation}
               onChange={(e) => setSequence((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
@@ -1125,12 +1290,12 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
                 value={newKeyPointName}
                 onChange={(e) => setNewKeyPointName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addKeyPoint())}
-                className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#FF6B00] min-w-[180px]"
+                className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#005EB8] min-w-[180px]"
               />
               <button
                 type="button"
                 onClick={addKeyPoint}
-                className="px-3 py-1.5 bg-[#FF6B00] hover:bg-[#e55b00] text-white text-xs font-bold rounded-lg flex items-center gap-1 transition shadow-xs"
+                className="px-3 py-1.5 bg-[#005EB8] hover:bg-[#004B93] text-white text-xs font-bold rounded-lg flex items-center gap-1 transition shadow-xs"
               >
                 <Plus className="h-3.5 w-3.5" /> 추가
               </button>
@@ -1189,7 +1354,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               placeholder="주요 포인트 관찰 지적 내용 또는 가이드 실행 수준 기록..."
               value={keyPoints.observation}
               onChange={(e) => setKeyPoints((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
@@ -1234,7 +1399,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
                 />
                 <button
                   onClick={addCycle}
-                  className="px-4 py-2 text-xs font-bold bg-[#FF6B00] hover:bg-[#e55b00] text-white rounded-md transition"
+                  className="px-4 py-2 text-xs font-bold bg-[#005EB8] hover:bg-[#004B93] text-white rounded-md transition"
                 >
                   추가
                 </button>
@@ -1264,7 +1429,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               placeholder="타임 지체 원인 또는 사이클 편차 특성 서술..."
               value={standardTime.observation}
               onChange={(e) => setStandardTime((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
@@ -1311,37 +1476,16 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
           <div className="border-t border-gray-100 pt-4 mt-4 space-y-3">
             <span className="text-[10px] font-bold text-gray-700 block">📸 현장 개선 사진 첨부 (Improvement Photo Attachments)</span>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-              <div className="md:col-span-2">
+            <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+              <div>
                 <label className="block text-[9px] text-gray-500 mb-1">사진 설명 (Description)</label>
                 <input
                   type="text"
-                  placeholder="예: 공구 거치대 개선 전 조립 라인 모습"
+                  placeholder="예: 공구 거치대 개선 포인트 혹은 진단 시 발견한 개선이 필요한 현장 상태"
                   value={impEvidenceDesc}
                   onChange={(e) => setImpEvidenceDesc(e.target.value)}
                   className="w-full text-xs border border-gray-200 rounded-md p-2 bg-white"
                 />
-              </div>
-              <div>
-                <label className="block text-[9px] text-gray-500 mb-1">구분</label>
-                <div className="flex gap-1 bg-white p-1 rounded-md border border-gray-200">
-                  {(["Before", "After"] as const).map((type) => (
-                    <button
-                      type="button"
-                      key={type}
-                      onClick={() => setImpBeforeAfter(type)}
-                      className={`flex-1 py-1 text-[10px] font-semibold rounded transition ${
-                        impBeforeAfter === type
-                          ? type === "Before"
-                            ? "bg-rose-500 text-white"
-                            : "bg-emerald-500 text-white"
-                          : "text-gray-500 hover:bg-gray-50"
-                      }`}
-                    >
-                      {type === "Before" ? "Before (개선 전)" : "After (개선 후)"}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -1394,13 +1538,6 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
                     <div key={evi.id} className="border border-gray-100 rounded-lg overflow-hidden relative group bg-white shadow-xs">
                       <div className="h-28 overflow-hidden relative">
                         <img referrerPolicy="no-referrer" src={evi.imageUrl} alt={evi.description} className="w-full h-full object-cover" />
-                        <span
-                          className={`absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold rounded ${
-                            evi.beforeAfter === "Before" ? "bg-rose-500 text-white" : "bg-emerald-500 text-white"
-                          }`}
-                        >
-                          {evi.beforeAfter}
-                        </span>
                       </div>
                       <div className="p-2 space-y-1">
                         <p className="text-[10px] text-gray-600 line-clamp-1">{evi.description}</p>
@@ -1417,7 +1554,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
               </div>
             ) : (
               <p className="text-[10px] text-gray-400 italic bg-gray-50/50 p-3 rounded-lg text-center">
-                첨부된 개선 제안 사진이 없습니다. 개선 효과 증명을 위해 Before/After 사진을 첨부해 주세요.
+                첨부된 개선 제안 사진이 없습니다. 진단 중 발견된 현장의 주요 개선 포인트를 기록할 수 있는 사진을 첨부해 주세요.
               </p>
             )}
           </div>
@@ -1426,9 +1563,9 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
 
       {/* 4. Gap Management with Intelligent Gemini Analysis */}
       {gaps.length > 0 && (
-        <div className="bg-white p-6 rounded-xl border border-[#FF6B00]/20 shadow-sm space-y-6">
+        <div className="bg-white p-6 rounded-xl border border-[#005EB8]/20 shadow-sm space-y-6">
           <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-            <h2 className="text-sm font-bold text-[#FF6B00] flex items-center gap-1.5">
+            <h2 className="text-sm font-bold text-[#005EB8] flex items-center gap-1.5">
               <AlertTriangle className="h-5 w-5" />
               3. Gap & Action Management (NOK 평가에 따른 관리 항목 자동 생성)
             </h2>
@@ -1451,7 +1588,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
                     <button
                       onClick={() => triggerAiAnalysis(gap.id, gap.category, gap.description)}
                       disabled={aiAnalyzingSection !== null}
-                      className="px-3.5 py-1.5 text-[10px] font-bold text-white bg-gradient-to-r from-[#FF6B00] to-[#00539B] rounded-md hover:opacity-90 flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
+                      className="px-3.5 py-1.5 text-[10px] font-bold text-white bg-[#005EB8] hover:bg-[#004B93] rounded-md flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
                     >
                       {aiAnalyzingSection === gap.id ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
@@ -1500,7 +1637,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
                             prev.map((g) => (g.id === gap.id ? { ...g, rootCause: e.target.value } : g))
                           )
                         }
-                        className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#00539B]"
+                        className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8]"
                       />
                     </div>
                     <div>
@@ -1553,7 +1690,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
                                 prev.map((a) => (a.id === linkedAction.id ? { ...a, actionDescription: e.target.value } : a))
                               )
                             }
-                            className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#00539B]"
+                            className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#005EB8]"
                           />
                         </div>
                         <div>
@@ -1640,7 +1777,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit }: 
 
       {/* 5. Evidence & Photo Registration Section */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-xs font-bold text-[#00539B] uppercase tracking-wider mb-2">
+        <h2 className="text-xs font-bold text-[#005EB8] uppercase tracking-wider mb-2">
           4. Evidence & Photos Management (현장 증빙 및 사진 관리)
         </h2>
 

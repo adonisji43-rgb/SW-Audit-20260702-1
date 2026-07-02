@@ -118,7 +118,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
   // Chart 2: Area-specific Findings
   const areaChartData = useMemo(() => {
     const areas = ["Assembly", "Welding", "Machining", "Paint", "Logistics"] as const;
-    const colors = ["#00539B", "#FF6B00", "#10B981", "#F59E0B", "#6B7280"];
+    const colors = ["#005EB8", "#00A5D7", "#00AD83", "#F26B43", "#C00000"];
     return areas.map((area, index) => {
       const count = submittedAudits.filter((a) => a.area === area).length;
       return { name: area, value: count, color: colors[index] };
@@ -197,7 +197,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-5">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-            <Activity className="h-6 w-6 text-[#FF6B00]" />
+            <Activity className="h-6 w-6 text-[#005EB8]" />
             SW Compliance Audit Dashboard
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -217,7 +217,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Compliance Rate
             </span>
-            <span className="bg-blue-50 text-[#00539B] p-1.5 rounded-lg">
+            <span className="bg-[#BFD5EA]/30 text-[#005EB8] p-1.5 rounded-lg">
               <TrendingUp className="h-5 w-5" />
             </span>
           </div>
@@ -226,10 +226,10 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             <span
               className={`text-xs font-bold px-1.5 py-0.5 rounded ${
                 kpis.complianceRate >= 80
-                  ? "bg-emerald-50 text-emerald-700"
+                  ? "bg-[#B2E6DA]/40 text-[#00AD83]"
                   : kpis.complianceRate >= 60
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-rose-50 text-rose-700"
+                  ? "bg-orange-50 text-[#F26B43]"
+                  : "bg-red-50 text-[#C00000]"
               }`}
             >
               {kpis.complianceRate >= 80 ? "Pass Target" : "Under Target"}
@@ -244,13 +244,13 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Audit Pass Rate
             </span>
-            <span className="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg">
+            <span className="bg-[#B2E6DA]/40 text-[#00AD83] p-1.5 rounded-lg">
               <Award className="h-5 w-5" />
             </span>
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900">{kpis.passRate}%</span>
-            <span className="text-xs text-emerald-600 font-semibold">(80점 이상)</span>
+            <span className="text-xs text-[#00AD83] font-semibold">(80점 이상)</span>
           </div>
           <p className="text-xs text-gray-400 mt-2">전체 Audit 중 합격점 획득 비율</p>
         </div>
@@ -261,7 +261,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Action Closure Rate
             </span>
-            <span className="bg-orange-50 text-[#FF6B00] p-1.5 rounded-lg">
+            <span className="bg-orange-50 text-[#F26B43] p-1.5 rounded-lg">
               <CheckCircle2 className="h-5 w-5" />
             </span>
           </div>
@@ -280,14 +280,14 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Overdue Action Rate
             </span>
-            <span className="bg-rose-50 text-rose-600 p-1.5 rounded-lg">
+            <span className="bg-red-50 text-[#C00000] p-1.5 rounded-lg">
               <AlertTriangle className="h-5 w-5" />
             </span>
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900">{kpis.overdueActionRate}%</span>
             {kpis.overdueActions > 0 && (
-              <span className="text-xs font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+              <span className="text-xs font-bold text-[#C00000] bg-red-50 px-1.5 py-0.5 rounded">
                 {kpis.overdueActions}건 지연
               </span>
             )}
@@ -332,7 +332,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         {/* Chart 1: Site Comparison */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm lg:col-span-2">
           <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#00539B]"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#005EB8]"></span>
             Site별 평균 Compliance Rate 현황 (%)
           </h3>
           <div className="h-64">
@@ -350,7 +350,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                     {siteChartData.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={entry.Score >= 80 ? "#10B981" : entry.Score >= 60 ? "#F59E0B" : "#EF4444"}
+                        fill={entry.Score >= 80 ? "#00AD83" : entry.Score >= 60 ? "#F26B43" : "#C00000"}
                       />
                     ))}
                   </Bar>
@@ -364,13 +364,13 @@ export default function DashboardView({ audits }: DashboardViewProps) {
           </div>
           <div className="flex justify-center gap-4 mt-2 text-[10px] text-gray-500 font-medium">
             <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span> 우수 (≥80)
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00AD83]"></span> 우수 (≥80)
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span> 주의 (60~79)
+              <span className="w-2.5 h-2.5 rounded-full bg-[#F26B43]"></span> 주의 (60~79)
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span> 미흡 (&lt;60)
+              <span className="w-2.5 h-2.5 rounded-full bg-[#C00000]"></span> 미흡 (&lt;60)
             </span>
           </div>
         </div>
@@ -378,7 +378,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         {/* Chart 2: Area Breakdown Pie */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF6B00]"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#005EB8]"></span>
             공정 영역(Area)별 Audit 수행 비중
           </h3>
           <div className="h-64 flex items-center justify-center">
@@ -428,7 +428,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                   <Line
                     type="monotone"
                     dataKey="Compliance Rate"
-                    stroke="#FF6B00"
+                    stroke="#005EB8"
                     strokeWidth={2.5}
                     activeDot={{ r: 8 }}
                   />
@@ -445,7 +445,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
         {/* Gap Category Analysis */}
         <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <AlertOctagon className="h-4 w-4 text-rose-500" />
+            <AlertOctagon className="h-4 w-4 text-[#C00000]" />
             지적된 Gap 원인 분야 TOP 4
           </h3>
           <div className="h-60">
@@ -460,7 +460,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                   <XAxis type="number" fontSize={10} stroke="#6B7280" />
                   <YAxis type="category" dataKey="name" fontSize={10} stroke="#6B7280" width={110} />
                   <Tooltip />
-                  <Bar dataKey="Count" fill="#EF4444" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="Count" fill="#C00000" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -515,13 +515,13 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                       <td className="p-3">
                         <span
                           className={`font-semibold font-mono px-2 py-0.5 rounded ${
-                            isOverdue ? "bg-rose-50 text-rose-600" : "bg-gray-100 text-gray-700"
+                            isOverdue ? "bg-red-50 text-[#C00000]" : "bg-gray-100 text-gray-700"
                           }`}
                         >
                           {action.dueDate}
                         </span>
                         {isOverdue && (
-                          <span className="text-[10px] text-rose-600 block mt-1 font-bold">● Overdue!</span>
+                          <span className="text-[10px] text-[#C00000] block mt-1 font-bold">● Overdue!</span>
                         )}
                       </td>
                       <td className="p-3">
@@ -542,7 +542,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
             </table>
           </div>
         ) : (
-          <div className="bg-emerald-50 text-emerald-800 p-4 rounded-lg flex items-center gap-2 text-xs font-medium">
+          <div className="bg-[#B2E6DA]/20 text-[#00AD83] p-4 rounded-lg flex items-center gap-2 text-xs font-medium border border-[#B2E6DA]/50">
             <CheckCircle2 className="h-4 w-4" />
             지연 및 미완료된 개선조치가 없습니다. 모든 공정이 원활하게 follow-up되고 있습니다.
           </div>
@@ -571,7 +571,7 @@ export default function DashboardView({ audits }: DashboardViewProps) {
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-base font-bold text-emerald-600 font-mono">{audit.score}%</span>
+                <span className="text-base font-bold text-[#00AD83] font-mono">{audit.score}%</span>
                 <span className="block text-[8px] text-gray-400 font-bold tracking-wider">COMPLIANCE</span>
               </div>
             </div>

@@ -40,6 +40,17 @@ export default function AuditHistoryView({
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [selectedResult, setSelectedResult] = useState<string>("All"); // All, Pass, Fail
 
+  // Dynamic unique lists for filtering
+  const uniqueSites = useMemo(() => {
+    const sites = new Set(audits.map((a) => a.site).filter(Boolean));
+    return ["All", ...Array.from(sites)];
+  }, [audits]);
+
+  const uniqueAreas = useMemo(() => {
+    const areas = new Set(audits.map((a) => a.area).filter(Boolean));
+    return ["All", ...Array.from(areas)];
+  }, [audits]);
+
   // Detail View Modal State
   const [selectedAudit, setSelectedAudit] = useState<AuditRecord | null>(null);
   
@@ -76,14 +87,42 @@ export default function AuditHistoryView({
   const handleExportCSV = () => {
     if (filteredAudits.length === 0) return;
     
-    const headers = "Audit ID,Date,Site,Area,Line,Station,Auditor,Operator,Trigger,SWI No.,SWC No.,Status,Score (%)\n";
+    const escapeCsv = (str: string | undefined | null) => {
+      if (!str) return '""';
+      return `"${str.replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
+    };
+
+    const headers = "Audit ID,Date,Site,Area,Line,Station,Auditor,Operator,Trigger,SWI No.,SWC No.,Status,Score (%),PPE Note,Sequence Note,Key Points Note,Standard Time Note,Improvement Observation,Improvement Idea,Improvement Benefit\n";
     const rows = filteredAudits
       .map((a) => {
-        return `"${a.id}","${a.auditDate}","${a.site}","${a.area}","${a.line}","${a.station}","${a.auditor}","${a.operatorName}","${a.trigger}","${a.swiNo}","${a.swcNo}","${a.status}",${a.score}`;
+        const id = escapeCsv(a.id);
+        const date = escapeCsv(a.auditDate);
+        const site = escapeCsv(a.site);
+        const area = escapeCsv(a.area);
+        const line = escapeCsv(a.line);
+        const station = escapeCsv(a.station);
+        const auditor = escapeCsv(a.auditor);
+        const operator = escapeCsv(a.operatorName);
+        const trigger = escapeCsv(a.trigger);
+        const swiNo = escapeCsv(a.swiNo);
+        const swcNo = escapeCsv(a.swcNo);
+        const status = escapeCsv(a.status);
+        const score = a.score;
+
+        const ppeNote = escapeCsv(a.ppe?.observation);
+        const seqNote = escapeCsv(a.sequence?.observation);
+        const kpNote = escapeCsv(a.keyPoints?.observation);
+        const stNote = escapeCsv(a.standardTime?.observation);
+        const impObs = escapeCsv(a.improvement?.observation);
+        const impIdea = escapeCsv(a.improvement?.idea);
+        const impBen = escapeCsv(a.improvement?.benefit);
+
+        return `${id},${date},${site},${area},${line},${station},${auditor},${operator},${trigger},${swiNo},${swcNo},${status},${score},${ppeNote},${seqNote},${kpNote},${stNote},${impObs},${impIdea},${impBen}`;
       })
       .join("\n");
 
-    const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
+    const csvContent = "\uFEFF" + headers + rows;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.setAttribute("download", `SW_Audit_Records_${new Date().toISOString().split("T")[0]}.csv`);
@@ -126,7 +165,7 @@ export default function AuditHistoryView({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-5 print:hidden">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <FileCheck className="h-5.5 w-5.5 text-[#FF6B00]" />
+            <FileCheck className="h-5.5 w-5.5 text-[#005EB8]" />
             SW Audit History & Action Center
           </h1>
           <p className="text-xs text-gray-500 mt-1">
@@ -155,7 +194,7 @@ export default function AuditHistoryView({
             placeholder="Search by ID, Line, Operator, Auditor..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full text-xs pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#FF6B00] focus:border-[#FF6B00]"
+            className="w-full text-xs pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
           />
         </div>
 
@@ -166,11 +205,9 @@ export default function AuditHistoryView({
             onChange={(e) => setSelectedSite(e.target.value)}
             className="w-full text-xs border border-gray-200 rounded-lg p-2 focus:outline-none"
           >
-            <option value="All">All Sites</option>
-            <option value="Incheon">Incheon</option>
-            <option value="Bismarck">Bismarck</option>
-            <option value="Dobris">Dobris</option>
-            <option value="Chennai">Chennai</option>
+            {uniqueSites.map((s) => (
+              <option key={s} value={s}>{s === "All" ? "All Sites" : s}</option>
+            ))}
           </select>
         </div>
 
@@ -181,12 +218,9 @@ export default function AuditHistoryView({
             onChange={(e) => setSelectedArea(e.target.value)}
             className="w-full text-xs border border-gray-200 rounded-lg p-2 focus:outline-none"
           >
-            <option value="All">All Areas</option>
-            <option value="Assembly">Assembly</option>
-            <option value="Welding">Welding</option>
-            <option value="Machining">Machining</option>
-            <option value="Paint">Paint</option>
-            <option value="Logistics">Logistics</option>
+            {uniqueAreas.map((a) => (
+              <option key={a} value={a}>{a === "All" ? "All Areas" : a}</option>
+            ))}
           </select>
         </div>
 
@@ -242,7 +276,7 @@ export default function AuditHistoryView({
                     <td className="p-4 font-semibold text-gray-900 font-mono">{audit.id}</td>
                     <td className="p-4 text-gray-500 font-medium font-mono">{audit.auditDate}</td>
                     <td className="p-4">
-                      <span className="font-semibold text-[#00539B]">{audit.site}</span>
+                      <span className="font-semibold text-[#005EB8]">{audit.site}</span>
                       <span className="block text-[10px] text-gray-400 font-medium mt-0.5">{audit.area}</span>
                     </td>
                     <td className="p-4">
@@ -278,7 +312,7 @@ export default function AuditHistoryView({
                         className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                           audit.status === "Draft"
                             ? "bg-gray-100 text-gray-600 border border-gray-200"
-                            : "bg-blue-50 text-[#00539B] border border-blue-200"
+                            : "bg-[#BFD5EA]/30 text-[#005EB8] border border-[#BFD5EA]/50"
                         }`}
                       >
                         {audit.status}
@@ -295,7 +329,7 @@ export default function AuditHistoryView({
                         </button>
                         <button
                           onClick={() => onEdit(audit)}
-                          className="p-1.5 text-gray-500 hover:text-[#FF6B00] hover:bg-orange-50 rounded transition"
+                          className="p-1.5 text-gray-500 hover:text-[#005EB8] hover:bg-blue-50/50 rounded transition"
                           title="편집"
                         >
                           <Edit className="h-4.5 w-4.5" />
@@ -331,7 +365,7 @@ export default function AuditHistoryView({
             {/* Modal Header */}
             <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50 print:hidden">
               <div className="flex items-center gap-2">
-                <FileCheck className="h-5 w-5 text-[#FF6B00]" />
+                <FileCheck className="h-5 w-5 text-[#005EB8]" />
                 <h2 className="text-sm font-bold text-gray-900 font-mono">SW Audit 상세 레포트 ({selectedAudit.id})</h2>
               </div>
               <div className="flex gap-2">
@@ -405,7 +439,7 @@ export default function AuditHistoryView({
 
               {/* Grid 2: Evaluated Checklist results */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold text-gray-900 border-l-2 border-[#FF6B00] pl-2 uppercase tracking-wider">
+                <h3 className="text-xs font-bold text-gray-900 border-l-2 border-[#005EB8] pl-2 uppercase tracking-wider">
                   1. Checklist Area Evaluation (평가 상세 기록)
                 </h3>
 
@@ -529,7 +563,7 @@ export default function AuditHistoryView({
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 font-medium">
-                      <span className="font-semibold block text-[10px] text-[#00539B]">수치 수집:</span>
+                      <span className="font-semibold block text-[10px] text-[#005EB8]">수치 수집:</span>
                       기준 {selectedAudit.standardTime.standardTime}초 | 실측: [
                       {selectedAudit.standardTime.measuredCycles.join(", ")}초]
                     </p>
@@ -569,13 +603,6 @@ export default function AuditHistoryView({
                               <div key={evi.id} className="border border-gray-200/50 rounded-lg overflow-hidden bg-white relative">
                                 <img referrerPolicy="no-referrer" src={evi.imageUrl} alt={evi.description} className="w-full h-24 object-cover" />
                                 <div className="p-1.5 bg-gray-50/50">
-                                  <div className="flex items-center gap-1">
-                                    <span className={`px-1 py-0.2 text-[8px] font-bold rounded ${
-                                      evi.beforeAfter === "Before" ? "bg-rose-500 text-white" : "bg-emerald-500 text-white"
-                                    }`}>
-                                      {evi.beforeAfter}
-                                    </span>
-                                  </div>
                                   <p className="text-[9px] text-gray-500 truncate mt-1" title={evi.description}>{evi.description}</p>
                                 </div>
                               </div>
@@ -589,7 +616,7 @@ export default function AuditHistoryView({
 
               {/* Grid 3: Gaps and Action Closure Trackers */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold text-gray-900 border-l-2 border-[#FF6B00] pl-2 uppercase tracking-wider">
+                <h3 className="text-xs font-bold text-gray-900 border-l-2 border-[#005EB8] pl-2 uppercase tracking-wider">
                   2. Gap & Corrective Action Tracking (지적사항 및 시정대책 대장)
                 </h3>
 
@@ -706,7 +733,7 @@ export default function AuditHistoryView({
                                           setSelectedAudit(null);
                                           onTriggerReAudit(selectedAudit);
                                         }}
-                                        className="px-3 py-1 text-[10px] font-bold text-white bg-[#00539B] hover:bg-[#00427c] rounded transition flex items-center gap-1"
+                                        className="px-3 py-1 text-[10px] font-bold text-white bg-[#005EB8] hover:bg-[#004B93] rounded transition flex items-center gap-1"
                                       >
                                         <Repeat className="h-3 w-3" /> Re-audit 수행하기
                                       </button>
@@ -730,7 +757,7 @@ export default function AuditHistoryView({
               {/* Grid 4: Evidence Photos Display */}
               {selectedAudit.evidences.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-gray-900 border-l-2 border-[#FF6B00] pl-2 uppercase tracking-wider">
+                  <h3 className="text-xs font-bold text-gray-900 border-l-2 border-[#005EB8] pl-2 uppercase tracking-wider">
                     3. Uploaded Evidence Photos (지적 현장 증빙 사진 대장)
                   </h3>
 

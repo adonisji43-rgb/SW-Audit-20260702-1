@@ -150,14 +150,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-[#FF6B00]/10 selection:text-[#FF6B00]">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-[#005EB8]/10 selection:text-[#005EB8]">
       {/* 1. Global Premium Brand Navigation Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-xs print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Bobcat Inspired Minimalist Brand Mark */}
             <div className="flex items-center">
-              <span className="text-sm font-black tracking-tight bg-gradient-to-r from-[#00539B] to-[#FF6B00] text-white px-3 py-1.5 rounded-md shadow-xs font-mono">
+              <span className="text-sm font-black tracking-tight bg-[#005EB8] text-white px-3 py-1.5 rounded-md shadow-xs font-mono">
                 DOOSAN BOBCAT
               </span>
             </div>
@@ -166,7 +166,7 @@ export default function App() {
               <span className="text-xs font-bold text-gray-800 tracking-wider">
                 SW COMPLIANCE AUDIT SYSTEM
               </span>
-              <span className="text-[9px] bg-red-100 text-red-800 font-extrabold px-1.5 py-0.5 rounded ml-2 font-mono tracking-wide">
+              <span className="text-[9px] bg-blue-100 text-[#005EB8] font-extrabold px-1.5 py-0.5 rounded ml-2 font-mono tracking-wide">
                 GLOBAL SYSTEM
               </span>
             </div>
@@ -180,7 +180,7 @@ export default function App() {
             </span>
             <button
               onClick={handleResetToSamples}
-              className="text-[10px] text-gray-400 hover:text-[#FF6B00] border border-gray-100 hover:border-orange-100 px-2.5 py-1.5 rounded-lg font-bold transition"
+              className="text-[10px] text-gray-400 hover:text-[#005EB8] border border-gray-100 hover:border-blue-100 px-2.5 py-1.5 rounded-lg font-bold transition"
             >
               Reset Samples
             </button>
@@ -207,7 +207,7 @@ export default function App() {
               {activeTab === "dashboard" && (
                 <motion.div
                   layoutId="activeTabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B00]"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#005EB8]"
                 />
               )}
             </button>
@@ -225,7 +225,7 @@ export default function App() {
               {activeTab === "new-audit" && !editingAudit && (
                 <motion.div
                   layoutId="activeTabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B00]"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#005EB8]"
                 />
               )}
             </button>
@@ -243,7 +243,7 @@ export default function App() {
               {activeTab === "history" && (
                 <motion.div
                   layoutId="activeTabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B00]"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#005EB8]"
                 />
               )}
             </button>
