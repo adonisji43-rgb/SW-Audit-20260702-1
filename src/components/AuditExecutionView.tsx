@@ -759,10 +759,10 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <FileText className="h-5.5 w-5.5 text-[#005EB8]" />
-            {existingAudit ? "Edit SW Audit Record" : "New Standard Work Audit"}
+            {existingAudit ? t("ex_edit_title") : t("ex_new_title")}
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            {auditId} • 현장 실시간 관찰 기록, 준수 규격 평가, AI 지원 갭 대응 분석기
+            {auditId} • {t("ex_subtitle")}
           </p>
         </div>
         <div className="flex gap-2 mt-4 md:mt-0">
@@ -770,31 +770,31 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             onClick={onCancel}
             className="px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
           >
-            Cancel
+            {t("ex_cancel")}
           </button>
           <button
             onClick={() => handleSaveOrSubmit("Draft")}
             className="px-4 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 flex items-center gap-1.5 transition"
           >
-            <Save className="h-4 w-4" /> Save Draft
+            <Save className="h-4 w-4" /> {t("ex_save_draft")}
           </button>
           <button
             onClick={() => handleSaveOrSubmit("Submitted")}
             className="px-5 py-2 text-xs font-bold text-white bg-[#005EB8] hover:bg-[#004B93] rounded-lg flex items-center gap-1.5 shadow-sm transition"
           >
-            <Send className="h-4 w-4" /> Submit Audit
+            <Send className="h-4 w-4" /> {t("ex_submit")}
           </button>
         </div>
       </div>
 
       {/* 2. Basic Metadata Input Form */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
-          1. Audit Basic Information (기본 정보 입력)
+        <h2 className="text-base md:text-lg font-bold text-[#005EB8] uppercase tracking-wider mb-2 border-b border-gray-100 pb-3">
+          {t("ex_sec_basic")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Audit Date</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_date")}</label>
             <input
               type="date"
               value={auditDate}
@@ -804,7 +804,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-[11px] font-bold text-gray-700">Site (사업장)</label>
+              <label className="block text-[11px] font-bold text-gray-700">{t("ex_site")}</label>
               <button
                 type="button"
                 onClick={() => {
@@ -813,14 +813,14 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                 }}
                 className="text-[9px] text-[#005EB8] hover:underline font-bold"
               >
-                {isAddingSite ? "Cancel" : "+ Add Site"}
+                {isAddingSite ? t("ex_cancel") : t("ex_add_custom_site")}
               </button>
             </div>
             {isAddingSite ? (
               <div className="flex gap-1">
                 <input
                   type="text"
-                  placeholder="New site name"
+                  placeholder={t("ex_new_site_placeholder")}
                   value={customSite}
                   onChange={(e) => setCustomSite(e.target.value)}
                   className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
@@ -830,7 +830,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                   onClick={handleAddCustomSite}
                   className="px-2 py-1 bg-[#005EB8] text-white text-[10px] font-bold rounded hover:bg-[#004B93] shrink-0"
                 >
-                  Add
+                  {t("ex_add")}
                 </button>
               </div>
             ) : (
@@ -847,7 +847,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-[11px] font-bold text-gray-700">Area (공정)</label>
+              <label className="block text-[11px] font-bold text-gray-700">{t("ex_area")}</label>
               <button
                 type="button"
                 onClick={() => {
@@ -856,14 +856,14 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                 }}
                 className="text-[9px] text-[#005EB8] hover:underline font-bold"
               >
-                {isAddingArea ? "Cancel" : "+ Add Area"}
+                {isAddingArea ? t("ex_cancel") : t("ex_add_custom_area")}
               </button>
             </div>
             {isAddingArea ? (
               <div className="flex gap-1">
                 <input
                   type="text"
-                  placeholder="New area name"
+                  placeholder={t("ex_new_area_placeholder")}
                   value={customArea}
                   onChange={(e) => setCustomArea(e.target.value)}
                   className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
@@ -873,7 +873,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                   onClick={handleAddCustomArea}
                   className="px-2 py-1 bg-[#005EB8] text-white text-[10px] font-bold rounded hover:bg-[#004B93] shrink-0"
                 >
-                  Add
+                  {t("ex_add")}
                 </button>
               </div>
             ) : (
@@ -890,7 +890,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-[11px] font-bold text-gray-700">Shift</label>
+              <label className="block text-[11px] font-bold text-gray-700">{t("ex_shift")}</label>
               <button
                 type="button"
                 onClick={() => {
@@ -899,14 +899,14 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                 }}
                 className="text-[9px] text-[#005EB8] hover:underline font-bold"
               >
-                {isAddingShift ? "Cancel" : "+ Add Shift"}
+                {isAddingShift ? t("ex_cancel") : t("ex_add_custom_shift")}
               </button>
             </div>
             {isAddingShift ? (
               <div className="flex gap-1">
                 <input
                   type="text"
-                  placeholder="New shift name"
+                  placeholder={t("ex_new_shift_placeholder")}
                   value={customShift}
                   onChange={(e) => setCustomShift(e.target.value)}
                   className="w-full text-xs border border-gray-200 rounded-md p-1.5 focus:ring-1 focus:ring-[#005EB8] focus:border-[#005EB8]"
@@ -916,7 +916,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                   onClick={handleAddCustomShift}
                   className="px-2 py-1 bg-[#005EB8] text-white text-[10px] font-bold rounded hover:bg-[#004B93] shrink-0"
                 >
-                  Add
+                  {t("ex_add")}
                 </button>
               </div>
             ) : (
@@ -932,10 +932,10 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             )}
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Line Name *</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_line")} *</label>
             <input
               type="text"
-              placeholder="e.g. Line JB 007"
+              placeholder={t("ex_line_placeholder")}
               value={line}
               onChange={(e) => setLine(e.target.value)}
               className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8]"
@@ -943,10 +943,10 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Station *</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_station")} *</label>
             <input
               type="text"
-              placeholder="e.g. WC 02 (Clamping)"
+              placeholder={t("ex_station_placeholder")}
               value={station}
               onChange={(e) => setStation(e.target.value)}
               className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8]"
@@ -954,19 +954,20 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Auditor (평가자)</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_auditor")}</label>
             <input
               type="text"
+              placeholder={t("ex_auditor_placeholder")}
               value={auditor}
               onChange={(e) => setAuditor(e.target.value)}
               className="w-full text-xs border border-gray-200 rounded-md p-2"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Operator (작업자) *</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_operator")} *</label>
             <input
               type="text"
-              placeholder="작업자 성명 입력"
+              placeholder={t("ex_operator_placeholder")}
               value={operatorName}
               onChange={(e) => setOperatorName(e.target.value)}
               className="w-full text-xs border border-gray-200 rounded-md p-2 focus:ring-1 focus:ring-[#005EB8]"
@@ -974,21 +975,21 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">Audit Trigger</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_trigger")}</label>
             <select
               value={trigger}
               onChange={(e) => setTrigger(e.target.value as TriggerType)}
               className="w-full text-xs border border-gray-200 rounded-md p-2"
             >
-              <option value="Routine">Routine (정기 감사)</option>
-              <option value="New Product">New Product (신제품 도입)</option>
-              <option value="Process Change">Process Change (공정 변경)</option>
-              <option value="Issue/Incident">Issue/Incident (이슈/품질 사고 발생)</option>
-              <option value="Job Rotation">Job Rotation (교대/보직 교대)</option>
+              <option value="Routine">{lang === "ko" ? "Routine (정기 감사)" : "Routine (Regular Audit)"}</option>
+              <option value="New Product">{lang === "ko" ? "New Product (신제품 도입)" : "New Product introduction"}</option>
+              <option value="Process Change">{lang === "ko" ? "Process Change (공정 변경)" : "Process Change"}</option>
+              <option value="Issue/Incident">{lang === "ko" ? "Issue/Incident (이슈/품질 사고 발생)" : "Issue/Incident"}</option>
+              <option value="Job Rotation">{lang === "ko" ? "Job Rotation (교대/보직 교대)" : "Job Rotation"}</option>
             </select>
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">SWI No. (표준지침서)</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_swi_no")}</label>
             <input
               type="text"
               placeholder="e.g. SWI-ASSY-302"
@@ -998,7 +999,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-gray-700 mb-1">SWC No. (작업선도)</label>
+            <label className="block text-[11px] font-bold text-gray-700 mb-1">{t("ex_swc_no")}</label>
             <input
               type="text"
               placeholder="e.g. SWC-ASSY-302"
@@ -1010,23 +1011,23 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
         </div>
       </div>
 
-      {/* 3. Detailed Checklist Audit Areas */}
-      <div className="space-y-6">
-        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
-          2. Standard Compliance Audit (영역별 규격 평가)
+      {/* 3. Detailed Checklist Audit Areas Block */}
+      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-6">
+        <h2 className="text-base md:text-lg font-bold text-[#005EB8] uppercase tracking-wider mb-2 border-b border-gray-100 pb-3">
+          {t("ex_sec_compliance")}
         </h2>
 
         {/* 2.1 PPE Audit */}
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 p-2.5 rounded-lg border border-gray-100 gap-3">
+        <div className="bg-gray-50/45 p-5 rounded-xl border border-gray-200/50 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-2.5 rounded-lg border border-gray-100 gap-3">
             <div>
-              <h3 className="text-xs font-bold text-gray-800">2.1 Conformity to PPE (안전보호구 완벽 준수 여부)</h3>
-              <p className="text-[10px] text-gray-500 mt-0.5">안전모, 보호안경, 귀마개, 안전화 등 필수 PPE 착용</p>
+              <h3 className="text-xs font-bold text-gray-800">2.1 {t("ex_ppe_title")}</h3>
+              <p className="text-[10px] text-gray-500 mt-0.5">{t("ex_ppe_desc")}</p>
             </div>
             
             <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-gray-500">1차 평가:</span>
+                <span className="text-[10px] font-bold text-gray-500">{t("ex_first_attempt")}:</span>
                 <div className="flex gap-1">
                   {(["PASS", "FAIL", "NA"] as const).map((opt) => (
                     <button
@@ -1051,7 +1052,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
               {ppe.attempt1 === "FAIL" && (
                 <div className="flex items-center gap-2 animate-fade-in bg-rose-50 p-1.5 rounded-md border border-rose-100">
-                  <span className="text-[10px] font-bold text-rose-700">⚠️ 1차 Fail로 인한 2차 재평가:</span>
+                  <span className="text-[10px] font-bold text-rose-700">{t("ex_second_attempt_req")}</span>
                   <div className="flex gap-1">
                     {(["PASS", "FAIL"] as const).map((opt) => (
                       <button
@@ -1066,7 +1067,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                             : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
                         }`}
                       >
-                        {opt === "PASS" ? "PASS (격상)" : "FAIL (Gap 확정)"}
+                        {opt === "PASS" ? t("ex_pass_upgrade") : t("ex_fail_gap")}
                       </button>
                     ))}
                   </div>
@@ -1076,33 +1077,34 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
           
           <div className="space-y-1">
-            <span className="text-[10px] text-gray-400 font-semibold block">관찰 가이드: 안전모, 보호안경, 귀마개, 안전화 등 필수 PPE 정상 착용 여부</span>
+            <span className="text-[10px] text-gray-400 font-semibold block">{t("ex_ppe_guide")}</span>
             <textarea
               rows={2}
-              placeholder="보호구 착용 상태에 대해 관찰 지적 내용 또는 준수 상황을 입력하세요..."
+              placeholder={t("ex_placeholder_obs")}
               value={ppe.observation}
               onChange={(e) => setPpe((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 bg-white focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
 
         {/* 2.2 Work Sequence Audit */}
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-gray-800 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-            2.2 Adherence to Work Sequence (작업 순서 및 재공 규격 준수)
+        <div className="bg-gray-50/45 p-5 rounded-xl border border-gray-200/50 space-y-4">
+          <h3 className="text-xs font-bold text-gray-800 bg-white p-2.5 rounded-lg border border-gray-100">
+            2.2 {t("ex_seq_title")}
           </h3>
+          <p className="text-[10px] text-gray-500 -mt-2 px-1">{t("ex_seq_desc")}</p>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             
             {/* SWIP */}
-            <div className="border border-gray-100 p-3 rounded-lg space-y-2 flex flex-col justify-between">
+            <div className="bg-white border border-gray-150 p-3 rounded-lg space-y-2 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-bold text-gray-600 block">① 표준 재공 수량(SWIP) 유지 여부</span>
-                <span className="text-[9px] text-gray-400 block mt-0.5">SWC 표준 재공과 일치 확인</span>
+                <span className="text-[10px] font-bold text-gray-600 block">{t("ex_swip_label")}</span>
+                <span className="text-[9px] text-gray-400 block mt-0.5">{t("ex_swip_desc")}</span>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-[9px] text-gray-400 font-bold">1차:</span>
+                  <span className="text-[9px] text-gray-400 font-bold">{t("ex_first_attempt")}:</span>
                   <div className="flex gap-0.5 flex-1 max-w-[130px]">
                     {(["PASS", "FAIL", "NA"] as const).map((opt) => (
                       <button
@@ -1151,14 +1153,14 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             </div>
 
             {/* Sequence */}
-            <div className="border border-gray-100 p-3 rounded-lg space-y-2 flex flex-col justify-between">
+            <div className="bg-white border border-gray-150 p-3 rounded-lg space-y-2 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-bold text-gray-600 block">② 작업 시퀀스(SWI Sequence) 준수 여부</span>
-                <span className="text-[9px] text-gray-400 block mt-0.5">표준 공정 지침서 시퀀스 일치</span>
+                <span className="text-[10px] font-bold text-gray-600 block">{t("ex_seq_label")}</span>
+                <span className="text-[9px] text-gray-400 block mt-0.5">{t("ex_seq_desc")}</span>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-[9px] text-gray-400 font-bold">1차:</span>
+                  <span className="text-[9px] text-gray-400 font-bold">{t("ex_first_attempt")}:</span>
                   <div className="flex gap-0.5 flex-1 max-w-[130px]">
                     {(["PASS", "FAIL", "NA"] as const).map((opt) => (
                       <button
@@ -1207,14 +1209,14 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
             </div>
 
             {/* Moves */}
-            <div className="border border-gray-100 p-3 rounded-lg space-y-2 flex flex-col justify-between">
+            <div className="bg-white border border-gray-150 p-3 rounded-lg space-y-2 flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-bold text-gray-600 block">③ 작업자 보행동선(Walking Path) 일치 여부</span>
-                <span className="text-[9px] text-gray-400 block mt-0.5">지정 보행 경로 이탈 여부</span>
+                <span className="text-[10px] font-bold text-gray-600 block">{t("ex_walk_label")}</span>
+                <span className="text-[9px] text-gray-400 block mt-0.5">{t("ex_walk_desc")}</span>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-[9px] text-gray-400 font-bold">1차:</span>
+                  <span className="text-[9px] text-gray-400 font-bold">{t("ex_first_attempt")}:</span>
                   <div className="flex gap-0.5 flex-1 max-w-[130px]">
                     {(["PASS", "FAIL", "NA"] as const).map((opt) => (
                       <button
@@ -1265,43 +1267,43 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
 
           <div className="space-y-1">
-            <span className="text-[10px] text-gray-400 font-semibold block">관찰 가이드: 표준 작업선도(SWC)에 표시된 작업 진행 흐름과 재공 수량 일치 파악</span>
+            <span className="text-[10px] text-gray-400 font-semibold block">{t("ex_seq_guide")}</span>
             <textarea
               rows={2}
-              placeholder="작업 순서 및 재공 수량 관찰 상세 내용을 기재해 주세요..."
+              placeholder={t("ex_placeholder_obs")}
               value={sequence.observation}
               onChange={(e) => setSequence((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 bg-white focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
 
         {/* 2.3 Key Point Audit */}
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 gap-2">
+        <div className="bg-gray-50/45 p-5 rounded-xl border border-gray-200/50 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 bg-white p-3 rounded-lg border border-gray-100 gap-2">
             <div>
               <h3 className="text-xs font-bold text-gray-800">
-                2.3 Adherence to Key Points (지정 품질/안전 포인트 관리)
+                2.3 {t("ex_kp_title")}
               </h3>
-              <p className="text-[10px] text-gray-500 mt-0.5">SWI/OPL에 명시된 필수 체크포인트 규격 및 작업 요령 준수성 평가</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">{t("ex_kp_desc")}</p>
             </div>
             
             {/* Key Point addition form */}
             <div className="flex gap-1.5 items-center">
               <input
                 type="text"
-                placeholder="새 평가 포인트 추가..."
+                placeholder={t("ex_add_point_placeholder")}
                 value={newKeyPointName}
                 onChange={(e) => setNewKeyPointName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addKeyPoint())}
-                className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#005EB8] min-w-[180px]"
+                className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-[#005EB8] min-w-[180px]"
               />
               <button
                 type="button"
                 onClick={addKeyPoint}
                 className="px-3 py-1.5 bg-[#005EB8] hover:bg-[#004B93] text-white text-xs font-bold rounded-lg flex items-center gap-1 transition shadow-xs"
               >
-                <Plus className="h-3.5 w-3.5" /> 추가
+                <Plus className="h-3.5 w-3.5" /> {t("ex_add")}
               </button>
             </div>
           </div>
@@ -1309,7 +1311,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           {/* Key point evaluation items list */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {(keyPoints.items || []).map((item, idx) => (
-              <div key={item.id} className="border border-gray-100 p-3.5 rounded-xl space-y-2.5 bg-gray-50/50 hover:bg-white hover:shadow-xs transition duration-150 flex flex-col justify-between">
+              <div key={item.id} className="border border-gray-100 p-3.5 rounded-xl space-y-2.5 bg-white hover:shadow-xs transition duration-150 flex flex-col justify-between">
                 <div className="flex justify-between items-start gap-2">
                   <span className="text-xs font-bold text-gray-700 leading-tight">
                     {idx + 1}. {item.name}
@@ -1340,7 +1342,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                             : opt === "FAIL"
                             ? "bg-rose-500 text-white"
                             : "bg-gray-400 text-white"
-                          : "bg-white text-gray-500 border border-gray-100 hover:bg-gray-100"
+                          : "bg-gray-50 text-gray-500 border border-gray-100 hover:bg-gray-100"
                       }`}
                     >
                       {opt}
@@ -1352,21 +1354,21 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
 
           <div className="space-y-1">
-            <span className="text-[10px] text-gray-400 font-semibold block">관찰 가이드: 특히 체결 압력, 각도 등 품질 및 설비 안전에 지대한 영향을 미치는 요소 진단</span>
+            <span className="text-[10px] text-gray-400 font-semibold block">{t("ex_kp_guide")}</span>
             <textarea
               rows={2}
-              placeholder="주요 포인트 관찰 지적 내용 또는 가이드 실행 수준 기록..."
+              placeholder={t("ex_placeholder_obs")}
               value={keyPoints.observation}
               onChange={(e) => setKeyPoints((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 bg-white focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
 
         {/* 2.4 Standard Time Audit */}
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
-          <div className="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-            <h3 className="text-xs font-bold text-gray-800">2.4 Adherence to Standard Time (공정 시간 및 사이클 타임)</h3>
+        <div className="bg-gray-50/45 p-5 rounded-xl border border-gray-200/50 space-y-4">
+          <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-gray-100">
+            <h3 className="text-xs font-bold text-gray-800">2.4 {t("ex_st_title")}</h3>
             <span
               className={`px-3 py-1 text-[10px] font-bold rounded-md ${
                 standardTime.isCompliant === "PASS"
@@ -1374,24 +1376,25 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                   : "bg-rose-100 text-rose-800"
               }`}
             >
-              실시간 상태: {standardTime.isCompliant}
+              {t("ex_status_label")}: {standardTime.isCompliant}
             </span>
           </div>
+          <p className="text-[10px] text-gray-500 -mt-2 px-1">{t("ex_st_desc")}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold text-gray-600 mb-1">Standard Time (표준시간, 초)</label>
+            <div className="bg-white p-3 rounded-lg border border-gray-100">
+              <label className="block text-[10px] font-bold text-gray-600 mb-1">{t("ex_standard_time")}</label>
               <input
                 type="number"
                 value={standardTime.standardTime}
                 onChange={(e) => setStandardTime((prev) => ({ ...prev, standardTime: parseInt(e.target.value) || 0 }))}
-                className="w-full text-xs border border-gray-200 rounded-md p-2"
+                className="w-full text-xs border border-gray-200 rounded-md p-2 bg-gray-50 focus:bg-white"
               />
               <span className="text-[9px] text-gray-400 mt-1 block">5% 허용 한계: {(standardTime.standardTime * 1.05).toFixed(1)}초</span>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-gray-600 mb-1">실측 Cycle Time 수집 (최소 2회 측정 요망)</label>
+            <div className="md:col-span-2 bg-white p-3 rounded-lg border border-gray-100">
+              <label className="block text-[10px] font-bold text-gray-600 mb-1">{t("ex_cycle_time_label")}</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -1399,13 +1402,13 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                   value={newCycle}
                   onChange={(e) => setNewCycle(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && addCycle()}
-                  className="flex-1 text-xs border border-gray-200 rounded-md p-2"
+                  className="flex-1 text-xs border border-gray-200 rounded-md p-2 bg-gray-50 focus:bg-white"
                 />
                 <button
                   onClick={addCycle}
                   className="px-4 py-2 text-xs font-bold bg-[#005EB8] hover:bg-[#004B93] text-white rounded-md transition"
                 >
-                  추가
+                  {t("ex_add")}
                 </button>
               </div>
 
@@ -1427,13 +1430,13 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
 
           <div className="space-y-1">
-            <span className="text-[10px] text-gray-400 font-semibold block">관찰 가이드: 측정값들의 평균치와 밥캣 표준 5% 이탈 마진 여부 자동 계산 적용</span>
+            <span className="text-[10px] text-gray-400 font-semibold block">{t("ex_st_guide")}</span>
             <textarea
               rows={2}
-              placeholder="타임 지체 원인 또는 사이클 편차 특성 서술..."
+              placeholder={t("ex_placeholder_obs")}
               value={standardTime.observation}
               onChange={(e) => setStandardTime((prev) => ({ ...prev, observation: e.target.value }))}
-              className="w-full text-xs border border-gray-200 rounded-md p-2.5 focus:ring-1 focus:ring-[#005EB8]"
+              className="w-full text-xs border border-gray-200 rounded-md p-2.5 bg-white focus:ring-1 focus:ring-[#005EB8]"
             />
           </div>
         </div>
@@ -1441,35 +1444,35 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
       {/* 3. Improvement Opportunities */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
-          3. Improvement Opportunities (현장 제안 및 지속적 개선 기회)
+        <h2 className="text-base md:text-lg font-bold text-[#005EB8] uppercase tracking-wider mb-2 border-b border-gray-100 pb-3">
+          {t("ex_sec_improvement")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-gray-600 mb-1">현장 관찰 상황 (Observation)</label>
+              <label className="block text-[10px] font-bold text-gray-600 mb-1">{t("ex_sec3_obs_label")}</label>
               <textarea
                 rows={3}
-                placeholder="지적 사유 외 생산성/안전 향상 가능한 힌트 기재"
+                placeholder={t("ex_sec3_obs_placeholder")}
                 value={improvement.observation}
                 onChange={(e) => setImprovement((prev) => ({ ...prev, observation: e.target.value }))}
                 className="w-full text-xs border border-gray-200 rounded-md p-2.5"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-gray-600 mb-1">개선 아이디어 제안 (Improvement Idea)</label>
+              <label className="block text-[10px] font-bold text-gray-600 mb-1">{t("ex_sec3_idea_label")}</label>
               <textarea
                 rows={3}
-                placeholder="지그 수정, 툴 교체, 표준 개정안 기안 등"
+                placeholder={t("ex_sec3_idea_placeholder")}
                 value={improvement.idea}
                 onChange={(e) => setImprovement((prev) => ({ ...prev, idea: e.target.value }))}
                 className="w-full text-xs border border-gray-200 rounded-md p-2.5"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-gray-600 mb-1">기대 효익 (Expected Benefit)</label>
+              <label className="block text-[10px] font-bold text-gray-600 mb-1">{t("ex_sec3_benefit_label")}</label>
               <textarea
                 rows={3}
-                placeholder="C/T 단축 초단위 수치, 부적합율 감소율 등"
+                placeholder={t("ex_sec3_benefit_placeholder")}
                 value={improvement.benefit}
                 onChange={(e) => setImprovement((prev) => ({ ...prev, benefit: e.target.value }))}
                 className="w-full text-xs border border-gray-200 rounded-md p-2.5"
@@ -1479,14 +1482,14 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
           {/* Inline Photo Attachment for Improvement */}
           <div className="border-t border-gray-100 pt-4 mt-4 space-y-3">
-            <span className="text-[10px] font-bold text-gray-700 block">📸 현장 개선 사진 첨부 (Improvement Photo Attachments)</span>
+            <span className="text-[10px] font-bold text-gray-700 block">{t("ex_sec3_photo_attach")}</span>
             
             <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
               <div>
-                <label className="block text-[9px] text-gray-500 mb-1">사진 설명 (Description)</label>
+                <label className="block text-[9px] text-gray-500 mb-1">{t("ex_evidence_desc")}</label>
                 <input
                   type="text"
-                  placeholder="예: 공구 거치대 개선 포인트 혹은 진단 시 발견한 개선이 필요한 현장 상태"
+                  placeholder={t("ex_sec3_photo_placeholder")}
                   value={impEvidenceDesc}
                   onChange={(e) => setImpEvidenceDesc(e.target.value)}
                   className="w-full text-xs border border-gray-200 rounded-md p-2 bg-white"
@@ -1496,7 +1499,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <div className="flex flex-wrap gap-1.5 items-center">
-                <span className="text-[9px] font-bold text-gray-400">모형 사진 바로 등록:</span>
+                <span className="text-[9px] font-bold text-gray-400">{t("ex_stock_photo")}:</span>
                 {STOCK_IMPROVEMENTS.map((stock) => (
                   <button
                     type="button"
@@ -1512,7 +1515,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
               <div>
                 <label className="px-3.5 py-1.5 text-xs font-bold text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer flex items-center gap-1.5 transition">
-                  <ImageIcon className="h-4 w-4" /> PC 사진 업로드
+                  <ImageIcon className="h-4 w-4" /> {t("ex_pc_upload")}
                   <input
                     type="file"
                     accept="image/*"
@@ -1551,7 +1554,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                           onClick={() => setEvidences((prev) => prev.filter((e) => e.id !== evi.id))}
                           className="text-rose-500 hover:text-rose-700 text-[9px] font-bold flex items-center gap-0.5 transition"
                         >
-                          <Trash2 className="h-2.5 w-2.5" /> 삭제
+                          <Trash2 className="h-2.5 w-2.5" /> {t("hi_delete")}
                         </button>
                       </div>
                     </div>
@@ -1559,7 +1562,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
               </div>
             ) : (
               <p className="text-[10px] text-gray-400 italic bg-gray-50/50 p-3 rounded-lg text-center">
-                첨부된 개선 제안 사진이 없습니다. 진단 중 발견된 현장의 주요 개선 포인트를 기록할 수 있는 사진을 첨부해 주세요.
+                {t("ex_no_imp_photos")}
               </p>
             )}
           </div>
@@ -1781,54 +1784,56 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
       {/* 4. Evidence & Photo Registration Section */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold text-[#005EB8] uppercase tracking-wider mb-2">
-          4. Evidence & Photos Management (현장 증빙 및 사진 관리)
+        <h2 className="text-base md:text-lg font-bold text-[#005EB8] uppercase tracking-wider mb-2 border-b border-gray-100 pb-3">
+          {t("ex_sec_evidence")}
         </h2>
 
         {/* Form to insert quick mock photo */}
         <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
-          <span className="text-[10px] font-bold text-gray-600 block">새로운 현장 증빙 사진 등록 (모의 카메라/파일 연동)</span>
+          <span className="text-[10px] font-bold text-gray-600 block">
+            {lang === "ko" ? "새로운 현장 증빙 사진 등록 (모의 카메라/파일 연동)" : "Register New Field Evidence Photo (Mock Camera/File Integration)"}
+          </span>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-2">
-              <label className="block text-[9px] text-gray-500 mb-0.5">사진 설명 (Description)</label>
+              <label className="block text-[9px] text-gray-500 mb-0.5">{t("ex_evidence_desc")}</label>
               <input
                 type="text"
-                placeholder="예: 클립 툴 오작동 상황 상세 조절 전"
+                placeholder={lang === "ko" ? "예: 클립 툴 오작동 상황 상세 조절 전" : "e.g., Clip tool malfunction before adjustment details"}
                 value={evidenceDesc}
                 onChange={(e) => setEvidenceDesc(e.target.value)}
-                className="w-full text-xs border border-gray-200 rounded-md p-2"
+                className="w-full text-xs border border-gray-200 rounded-md p-2 bg-white"
               />
             </div>
             <div>
-              <label className="block text-[9px] text-gray-500 mb-0.5">구분</label>
+              <label className="block text-[9px] text-gray-500 mb-0.5">{lang === "ko" ? "구분" : "Category"}</label>
               <select
                 value={evidenceBeforeAfter}
                 onChange={(e) => setEvidenceBeforeAfter(e.target.value as any)}
-                className="w-full text-xs border border-gray-200 rounded-md p-2"
+                className="w-full text-xs border border-gray-200 rounded-md p-2 bg-white"
               >
-                <option value="Before">Before (조치 전)</option>
-                <option value="After">After (조치 후/양호)</option>
+                <option value="Before">{lang === "ko" ? "Before (조치 전)" : "Before (Pre-correction)"}</option>
+                <option value="After">{lang === "ko" ? "After (조치 후/양호)" : "After (Post-correction)"}</option>
               </select>
             </div>
             <div>
-              <label className="block text-[9px] text-gray-500 mb-0.5">연결 평가 영역</label>
+              <label className="block text-[9px] text-gray-500 mb-0.5">{lang === "ko" ? "연결 평가 영역" : "Linked Area"}</label>
               <select
                 value={evidenceType}
                 onChange={(e) => setEvidenceType(e.target.value as any)}
-                className="w-full text-xs border border-gray-200 rounded-md p-2"
+                className="w-full text-xs border border-gray-200 rounded-md p-2 bg-white"
               >
-                <option value="PPE">PPE (안전보호구)</option>
-                <option value="Sequence">Sequence (작업 시퀀스)</option>
-                <option value="KeyPoints">KeyPoints (주요포인트)</option>
-                <option value="StandardTime">StandardTime (시간 준수)</option>
-                <option value="Improvement">Improvement (현장 제안)</option>
+                <option value="PPE">PPE</option>
+                <option value="Sequence">Sequence</option>
+                <option value="KeyPoints">KeyPoints</option>
+                <option value="StandardTime">StandardTime</option>
+                <option value="Improvement">Improvement</option>
               </select>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 mt-2 pt-2 border-t border-gray-100">
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-[9px] font-bold text-gray-400">모형 사진 등록 단축키:</span>
+              <span className="text-[9px] font-bold text-gray-400">{t("ex_stock_photo")}:</span>
               {STOCK_EVIDENCES.map((stock) => (
                 <button
                   key={stock.name}
@@ -1843,7 +1848,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
 
             <div className="relative">
               <label className="px-4 py-2 text-xs font-bold text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg cursor-pointer flex items-center gap-1.5 transition">
-                <ImageIcon className="h-4 w-4" /> PC 사진 파일 선택
+                <ImageIcon className="h-4 w-4" /> {t("ex_evidence_pc")}
                 <input
                   type="file"
                   accept="image/*"
@@ -1890,7 +1895,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
                     onClick={() => setEvidences(evidences.filter((e) => e.id !== evi.id))}
                     className="text-rose-500 hover:text-rose-700 text-[10px] font-bold flex items-center gap-0.5 pt-1.5 transition"
                   >
-                    <Trash2 className="h-3 w-3" /> 삭제
+                    <Trash2 className="h-3 w-3" /> {t("hi_delete")}
                   </button>
                 </div>
               </div>
@@ -1898,7 +1903,7 @@ export default function AuditExecutionView({ onSave, onCancel, existingAudit, la
           </div>
         ) : (
           <div className="text-xs text-gray-400 p-8 border border-dashed border-gray-200 rounded-xl text-center">
-            등록된 증빙 사진(Evidence)이 없습니다. 위의 사진 선택 혹은 모형 사진 단축키를 눌러 테스트를 완성하세요.
+            {t("ex_evidence_no_photos")}
           </div>
         )}
       </div>
